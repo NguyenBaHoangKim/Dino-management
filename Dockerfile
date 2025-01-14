@@ -1,4 +1,4 @@
-FROM node:20.15 AS base-dev
+FROM node:20.15
 
 WORKDIR /app
 
@@ -8,8 +8,6 @@ RUN npm install
 
 COPY . .
 
+COPY openapi.yaml ./app/openapi.yaml
+
 EXPOSE 8000
-
-FROM base-dev AS development
-
-CMD ["node", "--env-file=.env.development", "--watch", "bin/www.js"]

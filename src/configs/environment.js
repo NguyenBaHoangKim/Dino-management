@@ -1,4 +1,4 @@
-import path from 'node:path'
+import path from 'path'
 import { bool, cleanEnv, num, str } from 'envalid'
 import { LogFormat, LogLevel } from '#enums/log'
 
