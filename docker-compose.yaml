@@ -1,0 +1,31 @@
+version: '3'
+services:
+  app:
+    image: node:20.15
+    container_name: express_app
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - '8000:8000'
+    command: npm run dev
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URL: mongodb://localhost:27017/demo_v1
+    networks:
+      - express-mongo-network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./data:/data/db
+    networks:
+      - express-mongo-network
+
+networks:
+  express-mongo-network:
+    driver: bridge

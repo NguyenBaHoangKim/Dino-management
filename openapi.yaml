@@ -1,0 +1,2035 @@
+openapi: 3.0.3
+info:
+  description: Express for building RESTful APIs
+  version: 1.0.0
+  title: demo
+tags:
+  - name: admin
+    description: Admin endpoints
+  - name: auth
+    description: Auth endpoints
+externalDocs:
+  description: Github
+  url: https://github.com/lenghia100703/base-be-express
+servers:
+  - description: development
+    url: http://localhost:8000
+  - description: production
+    url: https://baobianquycuong.vn
+paths:
+  /health:
+    get:
+      tags: [admin]
+      summary: Health check
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Ok
+        '500':
+          description: Not healthy
+
+  /api/auth/register:
+    post:
+      tags: [auth]
+      summary: Register by email
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - username
+                - role
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email
+                password:
+                  type: string
+                  description: User's password
+                  minLength: 6
+                  maxLength: 128
+                username:
+                  type: string
+                  description: User's name
+                  maxLength: 128
+                role:
+                  type: string
+                  description: User's role
+                  enum:
+                    - admin
+                    - user
+                  default: user
+              example: { 'email': 'your@email.com', 'password': '*********', 'username': 'your name', 'role': 'user' }
+      responses:
+        '201':
+          description: User Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/auth/login:
+    post:
+      tags: [ auth ]
+      summary: Login by email
+      operationId: loginByEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email
+                password:
+                  type: string
+                  description: User's password
+                  minLength: 6
+                  maxLength: 128
+              example: { 'email': 'your@email.com', 'password': '*********' }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/user:
+    get:
+      summary: Get all users
+      tags: [Users]
+      responses:
+        200:
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        400:
+          description: Bad request
+
+  /api/user/{id}:
+    get:
+      summary: Get a user by ID
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        200:
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        404:
+          description: User not found
+
+  /api/user/current:
+    get:
+      summary: Get the current user
+      tags: [Users]
+      responses:
+        200:
+          description: Current user details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        404:
+          description: User not found
+
+  /api/project:
+    post:
+      summary: Create a new project
+      tags: [Projects]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                direction:
+                  type: string
+                code:
+                  type: string
+                description:
+                  type: string
+                createdBy:
+                  type: string
+                images:
+                  type: string
+                  format: binary
+      responses:
+        201:
+          description: Project created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        400:
+          description: Bad request
+    get:
+      summary: Get a list of projects
+      tags: [Projects]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+          description: Number of projects per page
+      responses:
+        200:
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+        400:
+          description: Bad request
+
+  /api/project/{projectId}:
+    get:
+      summary: Get a project by ID
+      tags: [Projects]
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          schema:
+            type: string
+          description: The project ID
+      responses:
+        200:
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        404:
+          description: Project not found
+    put:
+      summary: Edit an existing project
+      tags: [Projects]
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          schema:
+            type: string
+          description: The project ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                direction:
+                  type: string
+                code:
+                  type: string
+                description:
+                  type: string
+                images:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Project updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        404:
+          description: Project not found
+    delete:
+      summary: Delete a project by ID
+      tags: [Projects]
+      parameters:
+        - in: path
+          name: projectId
+          required: true
+          schema:
+            type: string
+          description: The project ID
+      responses:
+        200:
+          description: Project deleted successfully
+        404:
+          description: Project not found
+
+  /api/project/search:
+    get:
+      summary: Get a list of projects by name
+      tags: [Projects]
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Project name
+      responses:
+        200:
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+        400:
+          description: Bad request
+
+  /api/project/user/{userId}:
+    get:
+      summary: Get a list of projects by user ID
+      tags: [Projects]
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        200:
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+        404:
+          description: User not found
+
+  /api/project/favorite:
+    post:
+      summary: Add a project to favorites
+      tags: [Projects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                projectId:
+                  type: string
+                userId:
+                  type: string
+      responses:
+        200:
+          description: Project added to favorites successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        404:
+          description: Project not found
+
+    get:
+      summary: Get a list of favorite projects by user ID
+      tags: [Projects]
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        200:
+          description: List of favorite projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+        404:
+          description: User not found
+
+  /api/lesson:
+    get:
+      summary: Get a list of lessons
+      tags: [Lessons]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+          description: Number of lessons per page
+      responses:
+        200:
+          description: List of lessons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lesson'
+        400:
+          description: Bad request
+
+  /api/lesson/status/{lessonId}:
+    patch:
+      summary: Change the status of a lesson
+      tags: [Lessons]
+      parameters:
+        - in: path
+          name: lessonId
+          required: true
+          schema:
+            type: string
+          description: The lesson ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+      responses:
+        200:
+          description: Lesson status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        404:
+          description: Lesson not found
+
+  /api/lesson/course/{courseId}:
+    post:
+      summary: Create a new lesson by course ID
+      tags: [Lessons]
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          schema:
+            type: string
+          description: The course ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                videoUrl:
+                  type: string
+                images:
+                  type: string
+                  format: binary
+                body:
+                  type: string
+                status:
+                  type: string
+      responses:
+        201:
+          description: Lesson created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        400:
+          description: Bad request
+    get:
+      summary: Get all lessons by course ID
+      tags: [Lessons]
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          schema:
+            type: string
+          description: The course ID
+      responses:
+        200:
+          description: List of lessons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lesson'
+        404:
+          description: Course not found
+
+  /api/lesson/{lessonId}:
+    get:
+      summary: Get a lesson by ID
+      tags: [Lessons]
+      parameters:
+        - in: path
+          name: lessonId
+          required: true
+          schema:
+            type: string
+          description: The lesson ID
+      responses:
+        200:
+          description: Lesson details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        404:
+          description: Lesson not found
+    put:
+      summary: Edit an existing lesson
+      tags: [Lessons]
+      parameters:
+        - in: path
+          name: lessonId
+          required: true
+          schema:
+            type: string
+          description: The lesson ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                videoUrl:
+                  type: string
+                images:
+                  type: string
+                  format: binary
+                body:
+                  type: string
+                status:
+                  type: string
+      responses:
+        200:
+          description: Lesson updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+        404:
+          description: Lesson not found
+    delete:
+      summary: Delete a lesson by ID
+      tags: [Lessons]
+      parameters:
+        - in: path
+          name: lessonId
+          required: true
+          schema:
+            type: string
+          description: The lesson ID
+      responses:
+        200:
+          description: Lesson deleted successfully
+        404:
+          description: Lesson not found
+
+  /api/course:
+    post:
+      summary: Create a new course
+      tags: [Courses]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
+                images:
+                  type: string
+                  format: binary
+                certification:
+                  type: string
+      responses:
+        201:
+          description: Course created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        400:
+          description: Bad request
+    get:
+      summary: Get a list of courses with pagination
+      tags: [Courses]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+          description: Number of courses per page
+      responses:
+        200:
+          description: List of courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        400:
+          description: Bad request
+
+  /api/course/{courseId}:
+    get:
+      summary: Get a course by ID
+      tags: [Courses]
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          schema:
+            type: string
+          description: The course ID
+      responses:
+        200:
+          description: Course details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        404:
+          description: Course not found
+    put:
+      summary: Edit an existing course
+      tags: [Courses]
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          schema:
+            type: string
+          description: The course ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
+                images:
+                  type: string
+                  format: binary
+                certification:
+                  type: string
+      responses:
+        200:
+          description: Course updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        404:
+          description: Course not found
+    delete:
+      summary: Delete a course by ID
+      tags: [Courses]
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          schema:
+            type: string
+          description: The course ID
+      responses:
+        200:
+          description: Course deleted successfully
+        404:
+          description: Course not found
+
+  /api/course/favorite:
+    post:
+      summary: Add a course to favorites
+      tags: [Courses]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                courseId:
+                  type: string
+                userId:
+                  type: string
+      responses:
+        200:
+          description: Course added to favorites successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        404:
+          description: Course not found
+
+    get:
+      summary: Get a list of favorite courses by user ID
+      tags: [Courses]
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        200:
+          description: List of favorite courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        404:
+          description: User not found
+
+  /api/team:
+    post:
+      summary: Create a new team
+      tags: [Teams]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                leaderId:
+                  type: string
+      responses:
+        201:
+          description: Team created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        400:
+          description: Bad request
+
+  /api/team/member:
+    post:
+      summary: Add one or more team members
+      tags: [Teams]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                teamId:
+                  type: string
+                userIds:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        201:
+          description: Team members added successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamMember'
+        400:
+          description: Bad request
+
+  /api/team/{teamId}:
+    get:
+      summary: Get a team by ID
+      tags: [Teams]
+      parameters:
+        - in: path
+          name: teamId
+          required: true
+          schema:
+            type: string
+          description: The team ID
+      responses:
+        200:
+          description: Team details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamWithMembers'
+        404:
+          description: Team not found
+    put:
+      summary: Update an existing team
+      tags: [Teams]
+      parameters:
+        - in: path
+          name: teamId
+          required: true
+          schema:
+            type: string
+          description: The team ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                leaderId:
+                  type: string
+      responses:
+        200:
+          description: Team updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        404:
+          description: Team not found
+    delete:
+      summary: Delete a team by ID
+      tags: [Teams]
+      parameters:
+        - in: path
+          name: teamId
+          required: true
+          schema:
+            type: string
+          description: The team ID
+      responses:
+        200:
+          description: Team deleted successfully
+        404:
+          description: Team not found
+
+  /api/team/{teamId}/member/{userId}:
+    delete:
+      summary: Delete a team member by ID
+      tags: [Teams]
+      parameters:
+        - in: path
+          name: teamId
+          required: true
+          schema:
+            type: string
+          description: The team ID
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        200:
+          description: Team member deleted successfully
+        404:
+          description: Team member not found
+
+  /api/forum:
+    post:
+      summary: Create a new forum
+      tags: [Forum]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                images:
+                  type: string
+                  format: binary
+                user_id:
+                  type: string
+      responses:
+        '201':
+          description: Forum created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forum'
+        '500':
+          description: Internal server error
+    get:
+      summary: Get a list of forums
+      tags: [Forum]
+      responses:
+        '200':
+          description: List of forums
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Forum'
+        '500':
+          description: Internal server error
+  
+  /api/forum/{forumId}:
+    get:
+      summary: Get a forum by ID
+      tags: [Forum]
+      parameters:
+        - name: forumId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Forum retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forum'
+        '404':
+          description: Forum not found
+        '500':
+          description: Internal server error
+    put:
+      summary: Update a forum by ID
+      tags: [Forum]
+      parameters:
+        - name: forumId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                images:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Forum updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forum'
+        '404':
+          description: Forum not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete a forum by ID
+      tags: [Forum]
+      parameters:
+        - name: forumId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Forum deleted successfully
+        '404':
+          description: Forum not found
+        '500':
+          description: Internal server error
+  
+  /api/forum/user/{userId}:
+    get:
+      summary: Get a list of forums by user ID
+      tags: [Forum]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of forums by user ID
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Forum'
+        '404':
+          description: No forums found for this user
+        '500':
+          description: Internal server error
+    post:
+      summary: Create a new forum by user ID
+      tags: [Forum]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                images:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Forum created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forum'
+        '500':
+          description: Internal server error
+
+  /api/forum/like:
+    post:
+      summary: Like a forum
+      tags: [ Forum ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                forumId:
+                  type: string
+                userId:
+                  type: string
+      responses:
+        '200':
+          description: Forum liked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forum'
+        '404':
+          description: Forum not found
+        '500':
+          description: Internal server error
+
+  /api/comment:
+    post:
+      summary: Create a new comment
+      tags: [Comment]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        '201':
+          description: Comment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '500':
+          description: Internal server error
+    get:
+      summary: Get all comments
+      tags: [Comment]
+      responses:
+        '200':
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '500':
+          description: Internal server error
+  
+  /api/comment/sub:
+    post:
+      summary: Create a new sub-comment
+      tags: [Comment]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        '201':
+          description: Sub-comment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '500':
+          description: Internal server error
+  
+  /api/comment/commentable/{commentableId}:
+    get:
+      summary: Get comments by commentable ID
+      tags: [Comment]
+      parameters:
+        - name: commentableId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Comments retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '404':
+          description: No comments found for this object
+        '500':
+          description: Internal server error
+  
+  /api/comment/all-comments/{commentableId}:
+    get:
+      summary: Get all comments with sub-comments by commentable ID
+      tags: [Comment]
+      parameters:
+        - name: commentableId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Comments with sub-comments retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentWithSubComments'
+        '404':
+          description: No comments found for this object
+        '500':
+          description: Internal server error
+  
+  /api/comment/{commentId}:
+    put:
+      summary: Update a comment by ID
+      tags: [Comment]
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        '200':
+          description: Comment updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '404':
+          description: Comment not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete a comment by ID
+      tags: [Comment]
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Comment deleted successfully
+        '404':
+          description: Comment not found
+        '500':
+          description: Internal server error
+
+  /api/comment/like:
+    post:
+      summary: Like a comment
+      tags: [ Comment ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                commentId:
+                  type: string
+                userId:
+                  type: string
+      responses:
+        '200':
+          description: Comment liked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '404':
+          description: Comment not found
+        '500':
+          description: Internal server error
+
+  /api/classroom:
+    post:
+      summary: Create a new classroom
+      tags: [Classrooms]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                teacherId:
+                  type: string
+              required:
+                - name
+                - teacherId
+      responses:
+        201:
+          description: Classroom created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Classroom'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    get:
+      summary: Get all classrooms
+      tags: [Classrooms]
+      responses:
+        200:
+          description: List of classrooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Classroom'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/classroom/teacher/{teacherId}:
+    get:
+      summary: Get classrooms by teacher ID
+      tags: [Classrooms]
+      parameters:
+        - in: path
+          name: teacherId
+          required: true
+          schema:
+            type: string
+          description: The teacher ID
+      responses:
+        200:
+          description: List of classrooms by teacher ID
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Classroom'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/classroom/{classroomId}/students:
+    get:
+      summary: Get students in a classroom
+      tags: [Classrooms]
+      parameters:
+        - in: path
+          name: classroomId
+          required: true
+          schema:
+            type: string
+          description: The classroom ID
+      responses:
+        200:
+          description: List of students in the classroom
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/classroom/add-student:
+    post:
+      summary: Add a student to a classroom
+      tags: [Classrooms]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                classroomId:
+                  type: string
+                studentId:
+                  type: string
+              required:
+                - classroomId
+                - studentId
+      responses:
+        201:
+          description: Student added to classroom successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassroomMember'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        409:
+          description: Student is already in the classroom
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/classroom/{classroomId}/students/{studentId}:
+    delete:
+      summary: Delete a student from a classroom
+      tags: [Classrooms]
+      parameters:
+        - in: path
+          name: classroomId
+          required: true
+          schema:
+            type: string
+          description: The classroom ID
+        - in: path
+          name: studentId
+          required: true
+          schema:
+            type: string
+          description: The student ID
+      responses:
+        200:
+          description: Student deleted from classroom successfully
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/classroom/{classroomId}:
+    get:
+      summary: Get a classroom by ID
+      tags: [Classrooms]
+      parameters:
+        - in: path
+          name: classroomId
+          required: true
+          schema:
+            type: string
+          description: The classroom ID
+      responses:
+        200:
+          description: Classroom details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Classroom'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      summary: Edit a classroom
+      tags: [Classrooms]
+      parameters:
+        - in: path
+          name: classroomId
+          required: true
+          schema:
+            type: string
+          description: The classroom ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                teacher_id:
+                  type: string
+      responses:
+        200:
+          description: Classroom updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Classroom'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      summary: Delete a classroom
+      tags: [Classrooms]
+      parameters:
+        - in: path
+          name: classroomId
+          required: true
+          schema:
+            type: string
+          description: The classroom ID
+      responses:
+        200:
+          description: Classroom deleted successfully
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/classroom/course:
+    post:
+      summary: Add a course to a classroom
+      tags: [Classrooms]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                classroomId:
+                  type: string
+                courseId:
+                  type: string
+              required:
+                - classroomId
+                - courseId
+      responses:
+        200:
+          description: Course added to classroom successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Classroom'
+        404:
+          $ref: '#/components/responses/NotFound'
+        409:
+          description: Course is already in the classroom
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/classroom/course/delete:
+    post:
+      summary: Delete a course from a classroom
+      tags: [Classrooms]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                classroomId:
+                  type: string
+                courseId:
+                  type: string
+              required:
+                - classroomId
+                - courseId
+      responses:
+        200:
+          description: Course deleted from classroom successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Classroom'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+
+
+components:
+  securitySchemes:
+    jwt:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: JWT Authentication
+  requestBodies:
+    UserArray:
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/User'
+      description: List of user object
+      required: true
+  responses:
+    BadRequest:
+      description: 'Bad Request: Some parameters may contain invalid values'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Message'
+          example: { 'message': 'Something is required' }
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Message'
+          example: { 'message': 'User 1 not found' }
+    Unauthorized:
+      description: 'Unauthorized: Incorrect email or password'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Message'
+          example: { 'message': 'Invalid access key' }
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Message'
+          example: { 'message': 'Insufficient permission' }
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Message'
+          example: { 'message': 'Server is not running' }
+    OK:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Message'
+          example: { 'message': 'Successfully' }
+  schemas:
+    Message:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+      example: { 'message': 'Message' }
+    AuthToken:
+      type: object
+      properties:
+        tokenType:
+          type: string
+          description: Access Token's type
+        accessToken:
+          type: string
+          description: Authorization Token
+        refreshToken:
+          type: string
+          description: Token to get a new accessToken after expiration time
+        expiresIn:
+          type: integer
+          description: Access Token's expiration time in miliseconds
+      example: { 'tokenType': 'Bearer', 'accessToken': 'a', 'refreshToken': 'b', 'expiresIn': 123 }
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      example: { "_id": "66e4a3b9ece6e0c2ef96dc57", "username": "Minh Nghia", "email": "test123@gmail.com", "role": "user", "createdAt": "2024-09-13T20:42:33.601Z", "updatedAt": "2024-09-13T20:42:33.601Z" }
+    AuthResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/User'
+    Project:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        direction:
+          type: string
+        code:
+          type: string
+        like_count:
+          type: number
+        view_count:
+          type: number
+        description:
+          type: string
+        user_id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      example:
+        _id: "60d0fe4f5311236168a109ca"
+        name: "Project Alpha"
+        direction: "North"
+        code: "PA123"
+        like_count: 10
+        view_count: 100
+        description: "This is a description of Project Alpha."
+        created_by: "60d0fe4f5311236168a109cb"
+        createdAt: "2023-10-01T00:00:00.000Z"
+        updatedAt: "2023-10-01T00:00:00.000Z"
+    Lesson:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        video_url:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        body:
+          type: string
+        status:
+          type: string
+        course_id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      example:
+        _id: "60d0fe4f5311236168a109ca"
+        title: "Introduction to Machine Learning"
+        description: "This lesson covers the basics of machine learning."
+        video_url: "https://example.com/videos/intro-to-ml.mp4"
+        images:
+          - "https://example.com/images/intro-to-ml-1.png"
+          - "https://example.com/images/intro-to-ml-2.png"
+        body: "In this lesson, we will explore the fundamental concepts of machine learning..."
+        status: "published"
+        course_id: "60d0fe4f5311236168a109cb"
+        createdAt: "2023-10-01T00:00:00.000Z"
+        updatedAt: "2023-10-01T00:00:00.000Z"
+    Course:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        images:
+          type: array
+          items:
+            type: string
+        certification:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      example:
+        _id: "60d0fe4f5311236168a109ca"
+        title: "Introduction to AI"
+        description: "This course provides an introduction to artificial intelligence."
+        start_date: "2023-10-01"
+        end_date: "2023-12-31"
+        images:
+          - "https://example.com/images/intro-to-ai-1.png"
+          - "https://example.com/images/intro-to-ai-2.png"
+        certification: "Certificate of Completion"
+        createdAt: "2023-10-01T00:00:00.000Z"
+        updatedAt: "2023-10-01T00:00:00.000Z"
+    Forum:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        user_id:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      example:
+        _id: "60d0fe4f5311236168a109ca"
+        title: "Introduction to AI"
+        description: "This forum discusses various topics related to artificial intelligence."
+        images:
+          - "https://example.com/images/ai-forum-1.png"
+          - "https://example.com/images/ai-forum-2.png"
+        user_id: "60d0fe4f5311236168a109cb"
+        createdAt: "2023-10-01T00:00:00.000Z"
+        updatedAt: "2023-10-01T00:00:00.000Z"
+    Team:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        leaderId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      example:
+        _id: "60d0fe4f5311236168a109ca"
+        name: "Development Team"
+        leaderId: "60d0fe4f5311236168a109cb"
+        createdAt: "2023-10-01T00:00:00.000Z"
+        updatedAt: "2023-10-01T00:00:00.000Z"
+    TeamMember:
+      type: object
+      properties:
+        _id:
+          type: string
+        teamId:
+          type: string
+        userId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      example:
+        _id: "60d0fe4f5311236168a109cc"
+        teamId: "60d0fe4f5311236168a109ca"
+        userId: "60d0fe4f5311236168a109cd"
+        createdAt: "2023-10-01T00:00:00.000Z"
+        updatedAt: "2023-10-01T00:00:00.000Z"
+    TeamWithMembers:
+      type: object
+      properties:
+        team:
+          $ref: '#/components/schemas/Team'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamMember'
+      example:
+        team:
+          _id: "60d0fe4f5311236168a109ca"
+          name: "Development Team"
+          leaderId: "60d0fe4f5311236168a109cb"
+          createdAt: "2023-10-01T00:00:00.000Z"
+          updatedAt: "2023-10-01T00:00:00.000Z"
+        members:
+          - _id: "60d0fe4f5311236168a109cc"
+            teamId: "60d0fe4f5311236168a109ca"
+            userId: "60d0fe4f5311236168a109cd"
+            createdAt: "2023-10-01T00:00:00.000Z"
+            updatedAt: "2023-10-01T00:00:00.000Z"
+          - _id: "60d0fe4f5311236168a109ce"
+            teamId: "60d0fe4f5311236168a109ca"
+            userId: "60d0fe4f5311236168a109cf"
+            createdAt: "2023-10-01T00:00:00.000Z"
+            updatedAt: "2023-10-01T00:00:00.000Z"
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        user_id:
+          type: string
+        commentable_type:
+          type: string
+        commentable_id:
+          type: string
+        parent_id:
+          type: string
+          nullable: true
+        like_count:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      example:
+        id: "60d21b4967d0d8992e610c86"
+        content: "This is a sample comment."
+        user_id: "60d0fe4f5311236168a109cb"
+        commentable_type: "Post"
+        commentable_id: "60d21b4667d0d8992e610c85"
+        parent_id: null
+        like_count: 5
+        createdAt: "2023-10-01T00:00:00.000Z"
+        updatedAt: "2023-10-01T00:00:00.000Z"
+    CommentWithSubComments:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        user_id:
+          type: string
+        commentable_type:
+          type: string
+        commentable_id:
+          type: string
+        parent_id:
+          type: string
+          nullable: true
+        like_count:
+          type: number
+        sub_comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      example:
+        id: "60d21b4967d0d8992e610c86"
+        content: "This is a sample comment."
+        user_id: "60d0fe4f5311236168a109cb"
+        commentable_type: "Post"
+        commentable_id: "60d21b4667d0d8992e610c85"
+        parent_id: null
+        like_count: 5
+        sub_comments:
+          - id: "60d21b4967d0d8992e610c87"
+            content: "This is a sample sub-comment."
+            user_id: "60d0fe4f5311236168a109cc"
+            commentable_type: "Post"
+            commentable_id: "60d21b4667d0d8992e610c85"
+            parent_id: "60d21b4967d0d8992e610c86"
+            like_count: 2
+            createdAt: "2023-10-01T00:00:00.000Z"
+            updatedAt: "2023-10-01T00:00:00.000Z"
+        createdAt: "2023-10-01T00:00:00.000Z"
+        updatedAt: "2023-10-01T00:00:00.000Z"
+    Classroom:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "60d0fe4f5311236168a109ca"
+        name:
+          type: string
+          example: "Math 101"
+        description:
+          type: string
+          example: "Basic Math Course"
+        teacher_id:
+          type: string
+          example: "60d0fe4f5311236168a109cb"
+        courses:
+          type: array
+          items:
+            type: string
+            example: "60d0fe4f5311236168a109cc"
+        students:
+          type: array
+          items:
+            type: string
+            example: "60d0fe4f5311236168a109cd"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00.000Z"
+    ClassroomMember:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "60d0fe4f5311236168a109ce"
+        classroom_id:
+          type: string
+          example: "60d0fe4f5311236168a109ca"
+        user_id:
+          type: string
+          example: "60d0fe4f5311236168a109cf"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00.000Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00.000Z"
+
+
+

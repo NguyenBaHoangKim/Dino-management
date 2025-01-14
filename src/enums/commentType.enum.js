@@ -1,0 +1,7 @@
+export const COMMENT_TYPE = {
+    PROJECT: 'PROJECT',
+    LESSON: 'LESSON',
+    FORUM: 'FORUM',
+    COURSE: 'COURSE',
+    COMMENT: 'COMMENT',
+}

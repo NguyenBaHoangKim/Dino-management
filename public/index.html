@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Forum Notifications</title>
+        <script src="/socket.io/socket.io.js"></script>
+    </head>
+    <body>
+        <h1>Forum Notifications</h1>
+        <div id="notifications"></div>
+
+        <script>
+            const socket = io()
+
+            socket.on('message', (message) => {
+                console.log(message)
+                const notification = document.createElement('div')
+                notification.innerText = message
+                document
+                    .getElementById('notifications')
+                    .appendChild(notification)
+            })
+
+            socket.on('newComment', (comment) => {
+                const notification = document.createElement('div')
+                notification.innerText = `New comment: ${comment.content}`
+                document
+                    .getElementById('notifications')
+                    .appendChild(notification)
+            })
+
+            socket.on('newSubComment', (comment) => {
+                const notification = document.createElement('div')
+                notification.innerText = `New sub-comment: ${comment.content}`
+                document
+                    .getElementById('notifications')
+                    .appendChild(notification)
+            })
+        </script>
+    </body>
+</html>

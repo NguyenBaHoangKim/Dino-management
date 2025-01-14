@@ -1,0 +1,6 @@
+export const PROJECT_TYPE = {
+    DEFAULT: 'DEFAULT',
+    RECOMMENT: 'RECOMMENT',
+    PUBLIC: 'PUBLIC',
+    EXAMPLE: 'EXAMPLE',
+}
