@@ -29,3 +29,5 @@ pids
 
 #uploadfile
 uploads/
+
+.vercel
