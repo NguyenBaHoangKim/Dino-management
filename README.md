@@ -9,40 +9,50 @@ Before running the application, make sure you have the following installed:
 
 Node.js: Version 14.x or higher
 Docker (optional, for running with Docker)
-## Getting Started
-Clone the Repository
-Clone the repository to your local machine:
+# Getting Started 
 
-bash
-```
+## Clone the Repository
+
+Clone the repository to your local machine: :shipit:
+
+``` sh
 git clone https://github.com/NguyenBaHoangKim/Dino-management.git
 cd Dino-management
 ```
-### Install Dependencies
+
+## Customize configuration
+
+> [!NOTE]
+> See [Vite Configuration Reference](https://vitejs.dev/config/).
+
+> [!IMPORTANT]
+> You need to provide a .env.dev or .env.product file for the application to work. You can create this file with the necessary environment variables such as database connection strings, API keys, etc.
+
+## Project Setup
 Install the required Node.js packages:
 
-bash
-`npm install`
+```sh
+npm install
+```
 
-### Configuration
-You need to provide a .env.dev or .env.product file for the application to work. You can create this file with the necessary environment variables such as database connection strings, API keys, etc.
+### Compile and Hot-Reload for Development
 
-## Running the Application
-There are two ways to run the application:
+```sh
+npm run dev
+```
 
-1. Using npm (Development Mode)
-You can run the application in development mode with the following command:
+### Type-Check, Compile and Minify for Production
 
-bash
-`npm run dev`
-This will start the server and watch for changes.
+```sh
+npm run build
+```
 
-2. Using Docker
-Alternatively, you can run the application using Docker with the following command:
+### Or you can run using docker
 
-bash
-`docker-compose up -d`
 This will start both the application and the MongoDB database in separate containers.
+```sh
+docker-compose up -d
+```
 
 ## Accessing the Application
 If you're running it locally, you can access the application at http://localhost:8000.
