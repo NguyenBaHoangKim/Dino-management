@@ -8,7 +8,7 @@ import Forum from '../models/forum.model.js'
 import Project from '../models/project.model.js'
 import Lesson from '../models/lesson.model.js'
 import Course from '../models/course.model.js'
-import mongoose from 'mongoose'
+import { getSocketInstance, onlineUsers } from '#configs/socket'
 
 export const createComment = async (req, res) => {
     try {
@@ -17,15 +17,8 @@ export const createComment = async (req, res) => {
         if (Object.values(COMMENT_TYPE).includes(commentableType) === false) {
             return res.status(httpStatus.BAD_REQUEST).json({
                 message: 'Loại comment không hợp lệ',
-        })}
-
-        // const newComment = new Comment({
-        //     content: content,
-        //     user_id: userId ? new mongoose.Types.ObjectId(userId) : null,
-        //     commentable_id: commentableId ? new mongoose.Types.ObjectId(commentableId) : null,
-        //     commentable_type: commentableType,
-        //     parent_id: parentId ? new mongoose.Types.ObjectId(parentId) : null,
-        // }
+            })
+        }
 
         const newComment = new Comment({
             content: content,
@@ -35,6 +28,7 @@ export const createComment = async (req, res) => {
             parent_id: parentId,
         })
 
+        let owner;
         if (commentableType === COMMENT_TYPE.FORUM) {
             const forum = await Forum.findById(commentableId)
             if (!forum) {
@@ -44,8 +38,8 @@ export const createComment = async (req, res) => {
             }
             forum.comment_count += 1
             await forum.save()
-        }
-        else if (commentableType == COMMENT_TYPE.PROJECT) {
+            owner = forum.user_id.toString()
+        } else if (commentableType === COMMENT_TYPE.PROJECT) {
             const project = await Project.findById(commentableId)
             if (!project) {
                 return res.status(httpStatus.NOT_FOUND).json({
@@ -54,8 +48,8 @@ export const createComment = async (req, res) => {
             }
             project.comment_count += 1
             await project.save()
-        }
-        else if (commentableType === COMMENT_TYPE.LESSON) {
+            owner = project.user_id.toString()
+        } else if (commentableType === COMMENT_TYPE.LESSON) {
             const lesson = await Lesson.findById(commentableId)
             if (!lesson) {
                 return res.status(httpStatus.NOT_FOUND).json({
@@ -64,8 +58,8 @@ export const createComment = async (req, res) => {
             }
             lesson.comment_count += 1
             await lesson.save()
-        }
-        else if (commentableType === COMMENT_TYPE.COURSE) {
+            owner = lesson.user_id.toString()
+        } else if (commentableType === COMMENT_TYPE.COURSE) {
             const course = await Course.findById(commentableId)
             if (!course) {
                 return res.status(httpStatus.NOT_FOUND).json({
@@ -74,14 +68,33 @@ export const createComment = async (req, res) => {
             }
             course.comment_count += 1
             await course.save()
+            owner = course.user_id.toString()
         }
+
+        const io = getSocketInstance()
+
+
+        const postOwnerSocketId = onlineUsers.get(owner);
+        if (postOwnerSocketId) {
+            io.to(postOwnerSocketId).emit('newNotification', 'New comment created o day nee')
+        }
+
+        // if (onlineUsers.has(owner.toString())) {
+        //     const notification = {
+        //         title: 'Có người vừa comment vào bài viết của bạn',
+        //         message: 'Có người vừa comment vào bài viết của bạn',
+        //         user_id: owner,
+        //         notification_objectId: commentableId,
+        //         notification_type: commentableType,
+        //     }
+        //     io.to(owner.toString()).emit('newNotification', notification)
+        // }
 
         const savedComment = await newComment.save()
         await savedComment.populate('user_id')
-        savedComment.user_id = savedComment.user_id.transformUserInformation()
-        // Emit event to notify users
-        const io = req.app.get('socketio')
-        io.emit('newComment', savedComment)
+        if (savedComment.parent_id) {
+            savedComment.user_id = savedComment.user_id.transformUserInformation()
+        }
 
         return res.status(httpStatus.CREATED).json({
             data: savedComment,

@@ -13,6 +13,7 @@ import { JWT_CONSTANTS } from '#constants/index'
 import { generatePasswordResetToken } from '#utils/token'
 import * as emailService from '#services/email/email'
 import Session from '#models/session'
+import { getSocketInstance } from '#configs/socket'
 
 const { jwtSecret } = config.auth
 
@@ -52,8 +53,9 @@ export const login = async (req, res) => {
 
         await newSession.save()
 
-        const aaa = getCookie(req, JWT_CONSTANTS.COOKIE_REFRESH_TOKEN)
-        console.log('refresh token aaa', aaa)
+        //goi ntn la thanh cong roi
+        // const io = getSocketInstance()
+        // io.emit('newSession', "helloooooooo login success")
 
         return res.status(httpStatus.OK).json({
             message: 'Đăng nhập thành công',

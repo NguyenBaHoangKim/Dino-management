@@ -156,7 +156,8 @@ export const getListForums = async (req, res) => {
         }
 
         forums.forEach((forum) => {
-            forum.user_id = forum.user_id.transformUserInformation()
+            if (forum.user_id)
+                forum.user_id = forum.user_id.transformUserInformation()
         })
 
         return res.status(httpStatus.OK).json({

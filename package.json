@@ -18,8 +18,12 @@
     "#validations/*": "./src/validations/*.validation.js"
   },
   "main": "src/main.js",
+  "engines": {
+    "node": ">=14.x"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "builds": "echo \"Error: no build specified\" && exit 1",
     "dev": "node --env-file=.env.development --watch bin/www.js",
     "start": "node bin/www.js"
   },

@@ -14,6 +14,22 @@ const notificationSchema = new mongoose.Schema(
             trim: true,
             maxlength: 200,
         },
+        user_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+        },
+        is_read: {
+            type: Boolean,
+            default: false,
+        },
+        notification_objectId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+        },
+        notification_type: {
+            type: String,
+        }
     },
     {
         timestamps: true,

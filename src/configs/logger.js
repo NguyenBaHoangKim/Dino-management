@@ -1,40 +1,29 @@
-import { context, isSpanContextValid, trace } from '@opentelemetry/api';
-import { pino } from 'pino';
-import path from 'path';
-import config from '#configs/environment';
-import { LogFormat } from '#enums/log';
+import { context, isSpanContextValid, trace } from '@opentelemetry/api'
+import { pino } from 'pino'
+import config from '#configs/environment'
+import { LogFormat } from '#enums/log'
 
 function otelMixin() {
     if (!config.otel.isEnabled) {
-        return {};
+        return {}
     }
 
-    const span = trace.getSpan(context.active());
+    const span = trace.getSpan(context.active())
     if (!span) {
-        return {};
+        return {}
     }
 
-    const spanContext = span.spanContext();
+    const spanContext = span.spanContext()
     if (!isSpanContextValid(spanContext)) {
-        return {};
+        return {}
     }
 
     return {
         trace_id: spanContext.traceId,
         span_id: spanContext.spanId,
         trace_flags: `0${spanContext.traceFlags.toString(16)}`,
-    };
+    }
 }
-
-const transport = config.log.format === LogFormat.JSON
-    ? undefined
-    : {
-        target: path.resolve(__dirname, 'logger-pretty.js'),
-        options: {
-            ignore: 'appVersion',
-            translateTime: 'SYS:HH:MM:ss.l',
-        },
-    };
 
 const logger = pino({
     timestamp: true,
@@ -44,7 +33,16 @@ const logger = pino({
     },
     mixin: otelMixin,
     redact: ['config.auth.jwtSecret', 'config.mongo.uri', 'config.email.password'],
-    transport,
-});
+    transport:
+        config.log.format === LogFormat.JSON
+            ? undefined
+            : {
+                target: './logger-pretty.js',
+                options: {
+                    ignore: 'appVersion',
+                    translateTime: 'SYS:HH:MM:ss.l',
+                },
+            },
+})
 
-export default logger;
+export default logger

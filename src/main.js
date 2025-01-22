@@ -5,17 +5,13 @@ import * as database from '#configs/database'
 import * as email from '#configs/email'
 import logger from '#configs/logger'
 import app from '#configs/server'
-import { Server as SocketIOServer } from 'socket.io'
+import { initSocket } from '#configs/socket'
 
 const { port } = config
 const server = http.createServer(app)
-const io = new SocketIOServer(server, {
-    cors: {
-        origin: '*',
-    },
-})
 
-app.set('socketio', io)
+// Khởi tạo Socket.IO
+initSocket(server)
 
 export default async function main() {
     try {
@@ -25,19 +21,6 @@ export default async function main() {
         process.exit(1)
     }
 }
-io.on('connection', (socket) => {
-    logger.warn('A user connected: ' + socket.id)
-    socket.emit('message', 'Hello ' + socket.id)
-
-    socket.on('login', (data) => {
-        logger.warn('User ' + data.userId + ' connected')
-    })
-
-    socket.on('disconnect', () => {
-        logger.warn('Socket disconnected: ' + socket.id)
-    })
-})
-
 
 async function startServer() {
     setupErrorHandling()

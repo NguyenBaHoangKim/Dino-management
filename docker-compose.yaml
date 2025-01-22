@@ -6,7 +6,7 @@ services:
     ports:
       - 8000:8000
     environment:
-      - MONGO_URI=mongodb://host.docker.internal:27017/demo_v1
+      - MONGO_URI=mongodb+srv://baloctq:beTyD55wbFImHkoC@management-block.0dthd.mongodb.net/demo_v1
     command: sh -c "npm run dev"
     depends_on:
       - mongo_db
