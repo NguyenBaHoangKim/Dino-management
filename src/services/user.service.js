@@ -56,15 +56,16 @@ export const editUser = async (req, res) => {
     try {
         const userId = req.params.id
         const { username, birthday } = req.body
+        let updateData = { username, birthday }
 
-        const imageUrl = await uploadImage(req, res, 'avatar')
+        if (req.file) {
+            const imageUrl = await uploadImage(req, res, 'avatar')
+            updateData.avatar = imageUrl
+        }
 
         const updateUser = await User.findByIdAndUpdate(
-            userId, {
-                username: username,
-                avatar: imageUrl,
-                birthday: birthday,
-            },
+            userId,
+            updateData,
             { new: true },
         )
 
