@@ -54,8 +54,7 @@ export const getAllUsers = async (req, res) => {
 
 export const editUser = async (req, res) => {
     try {
-        const userId = req.params.id
-        const { username, birthday } = req.body
+        const { userId ,username, birthday } = req.body
         let updateData = { username, birthday }
 
         if (req.file) {

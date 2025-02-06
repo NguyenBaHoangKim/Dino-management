@@ -13,6 +13,9 @@ router
 router
     .route('/:id')
     .get(authorize(), userController.getUserById)
+
+router
+    .route('/edit')
     .put(upload.single('avatar'), userController.editUser)
 
 router.route('/').get(userController.getAllUsers)
