@@ -41,7 +41,8 @@ export const getAllUsers = async (req, res) => {
         const users = await User.find()
 
         return res.status(httpStatus.OK).json({
-            data: users.map((user) => user.transform()),
+            //data: users.map((user) => user.transform()),
+            data: users,
             message: 'Lấy tất cả người dùng thành công',
         })
     } catch (e) {
@@ -54,7 +55,7 @@ export const getAllUsers = async (req, res) => {
 export const editUser = async (req, res) => {
     try {
         const userId = req.params.id
-        const { username } = req.body
+        const { username, birthday } = req.body
 
         const imageUrl = await uploadImage(req, res, 'avatar')
 
@@ -62,6 +63,7 @@ export const editUser = async (req, res) => {
             userId, {
                 username: username,
                 avatar: imageUrl,
+                birthday: birthday,
             },
             { new: true },
         )

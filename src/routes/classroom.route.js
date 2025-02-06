@@ -1,12 +1,14 @@
 import express from 'express'
 import * as classroomController from '#controllers/classroom'
 import validate from '#middlewares/validation'
+import { authorize } from '../middlewares/auth.middleware.js'
+import { ROLE } from '../enums/role.enum.js'
 
 const router = express.Router()
 
 router
     .route('/')
-    .post(validate, classroomController.createClassroom)
+    .post(authorize([ROLE.TEACHER]) ,validate, classroomController.createClassroom)
     .get(classroomController.getAllClassrooms)
 
 router
@@ -23,7 +25,7 @@ router
 
 router
     .route('/add-student')
-    .post(validate, classroomController.addStudentToClassroom)
+    .post(authorize([ROLE.TEACHER]) ,validate, classroomController.addStudentToClassroom)
 
 router
     .route('/:classroomId')

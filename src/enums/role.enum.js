@@ -1,6 +1,8 @@
 export const ROLE = {
-    ADMIN: 'Admin',
-    GUESS: 'Guess',
-    TEACHER: 'Teacher',
-    STUDENT : 'Student'
+    ADMIN: 'admin',
+    GUESS: 'guess',
+    TEACHER: 'teacher',
+    STUDENT : 'student',
+    USER: 'user',
+    PRINCIPAL: 'principal',
 }

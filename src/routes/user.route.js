@@ -13,7 +13,7 @@ router
 router
     .route('/:id')
     .get(authorize(), userController.getUserById)
-    .put(authorize(), upload.single('avatar'), userController.editUser)
+    .put(upload.single('avatar'), userController.editUser)
 
 router.route('/').get(userController.getAllUsers)
 

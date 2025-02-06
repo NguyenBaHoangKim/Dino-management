@@ -13,7 +13,7 @@ router
 router
     .route('/:forumId')
     .get(forumController.getForumById)
-    .put(validate, upload.single('images'), forumController.editForum)
+    .put(validate, upload.single('image'), forumController.editForum)
     .delete(forumController.deleteForum)
 
 router.route('/user/:userId').get(forumController.getForumsByUserId)

@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import mongoose from 'mongoose'
 import config from '#configs/environment'
 import BaseModel from '#models/base'
+import { ROLES } from '#constants/role'
 
 const { env } = config
 const roles = ['user', 'admin']
@@ -37,12 +38,16 @@ const userSchema = new mongoose.Schema(
         role: {
             type: String,
             required: true,
-            enum: roles,
-            default: 'user',
+            enum: Object.values(ROLES),
+            default: ROLES.USER,
         },
         avatar: {
-            type: String,
-            trim: true,
+            type: [String],
+            default: [],
+        },
+        birthday: {
+            type: Date,
+            default: new Date('2000-01-01'),
         },
         accessToken: {
             type: String,
@@ -75,7 +80,7 @@ userSchema.pre('save', async function save(next) {
 userSchema.method({
     transform() {
         const transformed = {}
-        const fields = ['_id', 'username', 'email', 'avatar', 'role', 'createdAt', 'updatedAt']
+        const fields = ['_id', 'username', 'email', 'avatar', 'role', 'birthday', 'createdAt', 'updatedAt']
 
         for (const field of fields) {
             transformed[field] = this[field]
