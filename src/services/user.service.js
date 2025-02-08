@@ -2,6 +2,7 @@ import httpStatus from 'http-status'
 import User from '#models/user'
 import { getUserByToken } from '../securities/jwt.security.js'
 import { uploadImage } from '../utils/github.util.js'
+import { ROLE } from '../enums/role.enum.js'
 
 export const getUserById = async (req, res, id) => {
     try {
@@ -79,6 +80,39 @@ export const editUser = async (req, res) => {
     } catch (e) {
         return res.status(e.status || httpStatus.INTERNAL_SERVER_ERROR).json({
             message: e.message || 'Không thể cập nhật thông tin người dùng',
+        })
+    }
+}
+
+export const changeUserRole = async (req, res) => {
+    try {
+        const { userId, role } = req.body
+
+        if (!Object.values(ROLE).includes(role)) {
+            return res.status(httpStatus.BAD_REQUEST).json({
+                message: 'Role không hợp lệ',
+            })
+        }
+
+        const user = await User.findByIdAndUpdate(
+            userId,
+            { role: role },
+            { new: true }
+        )
+
+        if (!user) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'User không tìm thấy',
+            })
+        }
+
+        return res.status(httpStatus.OK).json({
+            data: user.transform(),
+            message: 'Cập nhật role thành công',
+        })
+    } catch (e) {
+        return res.status(e.status || httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Không thể cập nhật role người dùng',
         })
     }
 }

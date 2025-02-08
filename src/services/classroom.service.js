@@ -125,6 +125,43 @@ export const getClassroomsByTeacherId = async (req, res) => {
     }
 }
 
+export const getClassroomByPage = async (req, res) => {
+    try {
+        let { page, perPage } = req.query
+        if (!page || !perPage) {
+            page = 1
+            perPage = 10
+        }
+        const skip = (page - 1) * perPage
+        const limit = parseInt(perPage, 10)
+
+        const classrooms = await Classroom.find()
+            .skip(skip)
+            .limit(limit)
+            .populate('teacher_id')
+
+        const totalClassrooms = await Classroom.countDocuments()
+
+        classrooms.forEach(classroom => {
+            if (classroom.teacher_id) {
+                classroom.teacher_id = classroom.teacher_id.transformUserInformation()
+            }
+        })
+
+        return res.status(httpStatus.OK).json({
+            data: classrooms,
+            page: parseInt(page, 10),
+            total: totalClassrooms,
+            totalPages: Math.ceil(totalClassrooms / limit),
+            message: 'Lấy danh sách classrooms thành công',
+        })
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: error.message || 'Lấy danh sách classrooms thất bại',
+        })
+    }
+}
+
 export const getStudentsInClassroom = async (req, res) => {
     try {
         const { classroomId } = req.params
@@ -299,11 +336,16 @@ export const getClassroomById = async (req, res) => {
     try {
         const { classroomId } = req.params
 
-        const classroom = await Classroom.findById(classroomId).lean()
+        const classroom = await Classroom.findById(classroomId).populate('teacher_id')
+
         if (!classroom) {
             return res.status(httpStatus.NOT_FOUND).json({
                 message: 'Không tìm thấy classroom',
             })
+        }
+
+        if (classroom.teacher_id) {
+            classroom.teacher_id = classroom.teacher_id.transformUserInformation()
         }
 
         const students = await ClassroomMember.find({
@@ -316,8 +358,8 @@ export const getClassroomById = async (req, res) => {
 
         return res.status(httpStatus.OK).json({
             data: {
-                ...classroom,
-                students: students.map((cm) => cm.user_id.transform()),
+                ...classroom.toObject(),
+                students: students.map((cm) => cm.user_id.transformUserInformation()),
                 courses: courses,
             },
             message: 'Lấy classroom thành công',

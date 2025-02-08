@@ -11,15 +11,33 @@ router
     .post(validate, upload.single('image'), forumController.createForum)
 
 router
+    .route('/userId/:userId')
+    .get(forumController.getListForums)
+
+router
     .route('/:forumId')
     .get(forumController.getForumById)
     .put(validate, upload.single('image'), forumController.editForum)
     .delete(forumController.deleteForum)
 
-router.route('/user/:userId').get(forumController.getForumsByUserId)
+router
+    .route('/user/:userId')
+    .get(forumController.getForumsByUserId)
 
 router
     .route('/like')
     .post(forumController.likeForum)
+
+router
+    .route('/like/check')
+    .post(forumController.isLikedForum)
+
+router
+    .route('/repost')
+    .post(forumController.reportForum)
+
+router
+    .route('/repost/:userId')
+    .get(forumController.getRepostForumByUserId)
 
 export default router

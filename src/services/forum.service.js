@@ -6,6 +6,7 @@ import { LIKE_TYPE } from '../enums/likeType.enum.js'
 import LikeHistory from '../models/likeHistory.model.js'
 import User from '../models/user.model.js'
 import Comment from '../models/comment.model.js'
+import Repost from '../models/repost.model.js'
 
 export const createForum = async (req, res) => {
     try {
@@ -139,6 +140,7 @@ export const getForumsByUserId = async (req, res) => {
 
 export const getListForums = async (req, res) => {
     try {
+        const { userId } = req.params
         let { page, perPage } = req.query
         if (!page || !perPage) {
             page = PAGE
@@ -160,8 +162,36 @@ export const getListForums = async (req, res) => {
                 forum.user_id = forum.user_id.transformUserInformation()
         })
 
+        const forumsWithCounts = await Promise.all(forums.map(async (forum) => {
+            const commentCount = await Comment.countDocuments({ commentable_id: forum._id, commentable_type: 'FORUM' })
+            const repostCount = await Repost.countDocuments({ originalPost: forum._id })
+            if (forum.user_id) {
+                forum.user_id = forum.user_id.transformUserInformation()
+            }
+            let is_liked = false;
+            let is_reposted = false;
+            if (userId) {
+                const likeHistory = await LikeHistory.findOne({
+                    user_id: userId,
+                    liketable_id: forum._id,
+                    liketable_type: LIKE_TYPE.FORUM,
+                })
+                is_liked = !!likeHistory
+
+                const repost = await Repost.findOne({ originalPost: forum._id, user_id: userId })
+                is_reposted = !!repost
+            }
+            return {
+                ...forum.toObject(),
+                comment_count: commentCount,
+                repost_count: repostCount,
+                is_liked: is_liked,
+                is_reposted: is_reposted
+            }
+        }))
+
         return res.status(httpStatus.OK).json({
-            data: forums,
+            data: forumsWithCounts,
             page: parseInt(page, 10),
             totalPages: perPage === -1 ? 1 : Math.ceil(totalForums / perPage),
             message: 'Lấy danh sách forums thành công',
@@ -192,6 +222,27 @@ export const viewForum = async (req, res) => {
     } catch (e) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
             message: e.message || 'View forum thất bại',
+        })
+    }
+}
+
+export const isLikedForum = async (req, res) => {
+    try {
+        const { forumId, userId } = req.body
+
+        const likeHistory = await LikeHistory.findOne({
+            user_id: userId,
+            liketable_id: forumId,
+            liketable_type: LIKE_TYPE.FORUM,
+        })
+
+        return res.status(httpStatus.OK).json({
+            data: !!likeHistory,
+            message: 'Check liked project successfully',
+        })
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: error.message || 'Failed to check liked project',
         })
     }
 }
@@ -239,6 +290,75 @@ export const likeForum = async (req, res) => {
     } catch (error) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
             message: error.message || 'Failed to like/unlike forum',
+        })
+    }
+}
+
+export const repostAForum = async (req, res) => {
+    try {
+        const { forumId, userId, comment } = req.body
+
+        const forum = await Forum.findById(forumId)
+        if (!forum) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'Forum not found',
+            })
+        }
+
+        if (!userId) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'User not found',
+            })
+        }
+
+        const existRepost = await Repost.findOne({ originalPost: forumId, user_id: userId })
+        if (existRepost) {
+            await Repost.deleteOne({ _id: existRepost._id })
+            return res.status(httpStatus.OK).json({
+                message: 'Repost removed successfully',
+            })
+        }
+        else {
+            const newRepost = new Repost({
+                originalPost: forumId,
+                user_id: userId,
+                comment,
+            })
+
+            const savedRepost = await newRepost.save()
+
+            return res.status(httpStatus.CREATED).json({
+                data: savedRepost,
+                message: 'Repost forum successfully',
+            })
+        }
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: error.message || 'Failed to repost forum',
+        })
+    }
+}
+
+export const getRepostByUserId = async (req, res) => {
+    try {
+        const { userId } = req.params
+        const reposts = await Repost.find({ user_id: userId }).populate({
+            path: 'originalPost',
+            populate: { path: 'user_id' }
+        })
+
+        reposts.forEach((repost) => {
+            if (repost.originalPost.user_id)
+                repost.originalPost.user_id = repost.originalPost.user_id.transformUserInformation()
+        })
+
+        return res.status(httpStatus.OK).json({
+            data: reposts,
+            message: 'Get reposts successfully',
+        })
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: error.message || 'Failed to get reposts',
         })
     }
 }

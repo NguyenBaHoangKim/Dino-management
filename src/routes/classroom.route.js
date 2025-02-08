@@ -3,13 +3,14 @@ import * as classroomController from '#controllers/classroom'
 import validate from '#middlewares/validation'
 import { authorize } from '../middlewares/auth.middleware.js'
 import { ROLE } from '../enums/role.enum.js'
+import { getClassroomByPage } from '../services/classroom.service.js'
 
 const router = express.Router()
 
 router
     .route('/')
     .post(authorize([ROLE.TEACHER]) ,validate, classroomController.createClassroom)
-    .get(classroomController.getAllClassrooms)
+    .get(classroomController.getClassroomByPage)
 
 router
     .route('/teacher/:teacherId')

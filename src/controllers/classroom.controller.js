@@ -4,10 +4,6 @@ export const createClassroom = async (req, res) => {
     await classroomService.createClassroom(req, res)
 }
 
-export const getAllClassrooms = async (req, res) => {
-    await classroomService.getAllClassrooms(req, res)
-}
-
 export const getClassroomsByTeacherId = async (req, res) => {
     await classroomService.getClassroomsByTeacherId(req, res)
 }
@@ -42,4 +38,8 @@ export const deleteCourse = async (req, res) => {
 
 export const getClassroomById = async (req, res) => {
     await classroomService.getClassroomById(req, res)
+}
+
+export const getClassroomByPage = async (req, res) => {
+    await classroomService.getClassroomByPage(req, res)
 }

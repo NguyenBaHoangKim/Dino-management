@@ -294,6 +294,13 @@ export const likeProject = async (req, res) => {
             })
         }
 
+        const user = await User.findById(userId)
+        if (!user) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'User not found',
+            })
+        }
+
         const likeHistory = await LikeHistory.findOne({
             user_id: userId,
             liketable_id: projectId,
