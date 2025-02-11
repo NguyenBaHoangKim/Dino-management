@@ -9,6 +9,7 @@ import teamRoutes from '#routes/team'
 import commentRoutes from '#routes/comment'
 import classroomRoutes from '#routes/classroom'
 import assignmentRoutes from '#routes/assignment'
+import codeBlockRoutes from '#routes/codeBlock'
 
 const router = express.Router()
 
@@ -22,5 +23,7 @@ router.use('/team', teamRoutes)
 router.use('/comment', commentRoutes)
 router.use('/classroom', classroomRoutes)
 router.use('/assignment', assignmentRoutes)
+router.use('/code-block', codeBlockRoutes)
+
 
 export default router

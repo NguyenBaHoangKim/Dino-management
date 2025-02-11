@@ -16,7 +16,7 @@ const app = express()
 
 // Configure CORS
 const corsOptions = {
-    origin: [config.corsOrigin.domain, 'http://localhost:3030'],
+    origin: [config.corsOrigin.domain, 'http://localhost:3030', '*'],
     credentials: true,
     optionsSuccessStatus: 204,
 }
