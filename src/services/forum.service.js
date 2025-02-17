@@ -11,7 +11,7 @@ import Repost from '../models/repost.model.js'
 export const createForum = async (req, res) => {
     try {
         const { title, description, userId } = req.body
-        const imageUrl = await uploadImage(req, res, 'forum')
+        const imageUrl = req.file ? await uploadImage(req, res, 'forum') : []
 
         const user = await User.findById(userId)
         if (!user) {
@@ -140,7 +140,6 @@ export const getForumsByUserId = async (req, res) => {
 
 export const getListForums = async (req, res) => {
     try {
-        const { userId } = req.params
         let { page, perPage } = req.query
         if (!page || !perPage) {
             page = PAGE
@@ -158,9 +157,46 @@ export const getListForums = async (req, res) => {
         }
 
         forums.forEach((forum) => {
-            if (forum.user_id)  
+            if (forum.user_id)
                 forum.user_id = forum.user_id.transformUserInformation()
         })
+
+        return res.status(httpStatus.OK).json({
+            data: forums,
+            page: parseInt(page, 10),
+            totalPages: perPage === -1 ? 1 : Math.ceil(totalForums / perPage),
+            message: 'Lấy danh sách forums thành công',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Lấy danh sách forums thất bại',
+        })
+    }
+}
+
+export const getListForumsBaseOnUserId = async (req, res) => {
+    try {
+        const { userId } = req.params
+        let { page, perPage } = req.query
+        if (!page || !perPage) {
+            page = PAGE
+            perPage = PER_PAGE
+        }
+        let forums, totalForums
+        if (parseInt(perPage, 10) === -1) {
+            forums = await Forum.find().populate('user_id')
+            totalForums = forums.length
+        } else {
+            const skip = (page - 1) * perPage
+            const limit = parseInt(perPage, 10)
+            forums = await Forum.find().skip(skip).limit(limit).populate('user_id')
+            totalForums = await Forum.countDocuments()
+        }
+
+        // forums.forEach((forum) => {
+        //     if (forum.user_id)
+        //         forum.user_id = forum.user_id.transformUserInformation()
+        // })
 
         const forumsWithCounts = await Promise.all(forums.map(async (forum) => {
             const commentCount = await Comment.countDocuments({ commentable_id: forum._id, commentable_type: 'FORUM' })

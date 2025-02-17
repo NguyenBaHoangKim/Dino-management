@@ -2,15 +2,19 @@ import Classroom from '#models/classroom'
 import ClassroomMember from '#models/classroomMember'
 import httpStatus from 'http-status'
 import Course from '../models/course.model.js'
+import { uploadImage } from '../utils/github.util.js'
 
 export const createClassroom = async (req, res) => {
     try {
         const { name, description, teacherId } = req.body
 
+        const imageUrl = req.file ? await uploadImage(req, res, 'classroom') : []
+
         const newClassroom = new Classroom({
             name: name,
             description: description,
             teacher_id: teacherId,
+            image: imageUrl,
         })
 
         const savedClassroom = await newClassroom.save()
@@ -185,9 +189,15 @@ export const editClassroom = async (req, res) => {
         const { classroomId } = req.params
         const { name, description, teacher_id } = req.body
 
+        let updateData = { name, description, teacher_id }
+        if (req.file) {
+            const imageUrl = await uploadImage(req, res, 'classroom')
+            updateData.image = imageUrl
+        }
+
         const updatedClassroom = await Classroom.findByIdAndUpdate(
             classroomId,
-            { name, description, teacher_id },
+            updateData,
             { new: true },
         )
 

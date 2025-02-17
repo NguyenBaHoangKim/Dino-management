@@ -12,7 +12,7 @@ router
 
 router
     .route('/userId/:userId')
-    .get(forumController.getListForums)
+    .get(forumController.getListForumsBaseOnUserId)
 
 router
     .route('/:forumId')

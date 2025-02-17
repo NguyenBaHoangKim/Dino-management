@@ -49,6 +49,10 @@ const userSchema = new mongoose.Schema(
             type: Date,
             default: new Date('2000-01-01'),
         },
+        phoneNumber: {
+            type: String,
+            default: '',
+        },
         accessToken: {
             type: String,
             trim: true,

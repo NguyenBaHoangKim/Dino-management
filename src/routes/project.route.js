@@ -2,12 +2,13 @@ import express from 'express'
 import * as projectController from '#controllers/project'
 import upload from '#middlewares/file'
 import validate from '#middlewares/validation'
+import { authorize } from '../middlewares/auth.middleware.js'
 
 const router = express.Router()
 
 router
     .route('/')
-    .post(upload.single('images'), projectController.createProject)
+    .post(authorize(), upload.single('images'), projectController.createProject)
     .get(projectController.getListProjects)
 
 router
@@ -17,7 +18,7 @@ router
 
 router
     .route('/change-type')
-    .post(projectController.setTypeProject)
+    .post(authorize(), projectController.setTypeProject)
 
 router
     .route('/type/:type')
@@ -25,16 +26,16 @@ router
 
 router
     .route('/favorite')
-    .post(validate, projectController.addProjectToFavorites) //add or remove
+    .post(authorize(), validate, projectController.addProjectToFavorites) //add or remove
     .get(projectController.getFavoriteProjects)
 
 router
     .route('/like')
-    .post(projectController.likeProject)
+    .post(authorize(), projectController.likeProject)
 
 router
     .route('/like/check')
-    .post(projectController.isLikedProject)
+    .post(authorize(), projectController.isLikedProject)
 
 router
     .route('/user/:userId')
@@ -43,8 +44,8 @@ router
 router
     .route('/:projectId')
     .get(projectController.getProjectById)
-    .put(upload.single('images'), projectController.editProject)
-    .delete(projectController.deleteProject)
+    .put(authorize(), upload.single('images'), projectController.editProject)
+    .delete(authorize(), projectController.deleteProject)
 
 router
     .route('/')

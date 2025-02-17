@@ -4,43 +4,44 @@ import validate from '#middlewares/validation'
 import { authorize } from '../middlewares/auth.middleware.js'
 import { ROLE } from '../enums/role.enum.js'
 import { getClassroomByPage } from '../services/classroom.service.js'
+import upload from '../middlewares/file.middleware.js'
 
 const router = express.Router()
 
 router
     .route('/')
-    .post(authorize([ROLE.TEACHER]) ,validate, classroomController.createClassroom)
+    .post(authorize([ROLE.TEACHER]), upload.single('image'), validate, classroomController.createClassroom)
     .get(classroomController.getClassroomByPage)
 
 router
     .route('/teacher/:teacherId')
-    .get(classroomController.getClassroomsByTeacherId)
+    .get(authorize(), classroomController.getClassroomsByTeacherId)
 
 router
     .route('/:classroomId/students')
-    .get(classroomController.getStudentsInClassroom)
+    .get(authorize(), classroomController.getStudentsInClassroom)
 
 router
     .route('/:classroomId/students/:studentId')
-    .delete(classroomController.deleteStudentFromClassroom)
+    .delete(authorize(), classroomController.deleteStudentFromClassroom)
 
 router
     .route('/add-student')
-    .post(authorize([ROLE.TEACHER]) ,validate, classroomController.addStudentToClassroom)
+    .post(authorize([ROLE.TEACHER]), validate, classroomController.addStudentToClassroom)
 
 router
     .route('/:classroomId')
-    .put(validate, classroomController.editClassroom)
-    .get(classroomController.getClassroomById)
-    .delete(classroomController.deleteClassroom)
+    .put(authorize(), upload.single('image'), validate, classroomController.editClassroom)
+    .get(authorize(), classroomController.getClassroomById)
+    .delete(authorize(), classroomController.deleteClassroom)
 
 router
     .route('/course')
-    .post(validate, classroomController.addCourse)
+    .post(authorize(), validate, classroomController.addCourse)
 
 router
     .route('/course/delete')
-    .post(classroomController.deleteCourse)
+    .post(authorize(), classroomController.deleteCourse)
 
 
 export default router

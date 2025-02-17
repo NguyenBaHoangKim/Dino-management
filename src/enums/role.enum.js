@@ -5,4 +5,5 @@ export const ROLE = {
     STUDENT : 'student',
     USER: 'user',
     PRINCIPAL: 'principal',
+    ADMIN_WEB: 'admin_web',
 }

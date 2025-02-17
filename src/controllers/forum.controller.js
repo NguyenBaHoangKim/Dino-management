@@ -1,5 +1,4 @@
 import * as forumService from '#services/forum'
-import { repostAForum } from '#services/forum'
 
 export const createForum = async (req, res) => {
     await forumService.createForum(req, res)
@@ -19,6 +18,10 @@ export const getForumById = async (req, res) => {
 
 export const getForumsByUserId = async (req, res) => {
     await forumService.getForumsByUserId(req, res)
+}
+
+export const getListForumsBaseOnUserId = async (req, res) => {
+    await forumService.getListForumsBaseOnUserId(req, res)
 }
 
 export const getListForums = async (req, res) => {

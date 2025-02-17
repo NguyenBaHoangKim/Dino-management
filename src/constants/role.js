@@ -4,4 +4,5 @@ export const ROLES = {
     STUDENT: 'student',
     TEACHER: 'teacher',
     PRINCIPAL: 'principal',
+    ADMIN_WEB: 'admin_web',
 }

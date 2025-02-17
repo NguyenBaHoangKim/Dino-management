@@ -55,8 +55,8 @@ export const getAllUsers = async (req, res) => {
 
 export const editUser = async (req, res) => {
     try {
-        const { userId ,username, birthday } = req.body
-        let updateData = { username, birthday }
+        const { userId ,username, birthday, phoneNumber } = req.body
+        let updateData = { username, birthday, phoneNumber }
 
         if (req.file) {
             const imageUrl = await uploadImage(req, res, 'avatar')
