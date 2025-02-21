@@ -364,13 +364,18 @@ export const getClassroomById = async (req, res) => {
 
         const courses = await Course.find({
             _id: { $in: classroom.courses },
-        })
+        }).lean()
+
+        const coursesWithProgress = courses.map(course => ({
+            ...course,
+            progress: 50,
+        }))
 
         return res.status(httpStatus.OK).json({
             data: {
                 ...classroom.toObject(),
                 students: students.map((cm) => cm.user_id.transformUserInformation()),
-                courses: courses,
+                courses: coursesWithProgress,
             },
             message: 'Lấy classroom thành công',
         })

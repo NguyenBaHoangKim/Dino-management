@@ -32,7 +32,7 @@ router
 router
     .route('/:classroomId')
     .put(authorize(), upload.single('image'), validate, classroomController.editClassroom)
-    .get(authorize(), classroomController.getClassroomById)
+    .get(classroomController.getClassroomById)
     .delete(authorize(), classroomController.deleteClassroom)
 
 router
