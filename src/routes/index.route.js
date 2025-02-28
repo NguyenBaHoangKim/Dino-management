@@ -11,6 +11,7 @@ import classroomRoutes from '#routes/classroom'
 import assignmentRoutes from '#routes/assignment'
 import codeBlockRoutes from '#routes/codeBlock'
 import quizRouters from '#routes/quiz'
+import exerciseRoute from '#routes/exercise'
 
 const router = express.Router()
 
@@ -25,6 +26,7 @@ router.use('/comment', commentRoutes)
 router.use('/classroom', classroomRoutes)
 router.use('/assignment', assignmentRoutes)
 router.use('/code-block', codeBlockRoutes)
+router.use('/exercise', exerciseRoute)
 router.use('/quiz', quizRouters)
 
 export default router

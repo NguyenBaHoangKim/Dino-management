@@ -6,7 +6,7 @@ import BaseModel from '#models/base'
 import { ROLES } from '#constants/role'
 
 const { env } = config
-const roles = ['user', 'admin']
+const roles = ['user', 'admin', 'student', 'teacher', 'principal', 'admin_web']
 
 const userSchema = new mongoose.Schema(
     {

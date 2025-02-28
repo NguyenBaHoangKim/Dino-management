@@ -16,15 +16,15 @@ router
 
 router
     .route('/delete/:id')
-    .delete(authorize(), quizController.deleteQuiz)
+    .delete(quizController.deleteQuiz)
 
 router
     .route('/:id')
     .get(quizController.getQuizById)
 
 router
-    .route('/lesson/:lessonId')
-    .get(quizController.getQuizsByLessonId)
+    .route('/exercise/:exerciseId')
+    .get(quizController.getQuizsByExerciseId)
 
 router
     .route('/next-question')

@@ -191,8 +191,7 @@ export const editClassroom = async (req, res) => {
 
         let updateData = { name, description, teacher_id }
         if (req.file) {
-            const imageUrl = await uploadImage(req, res, 'classroom')
-            updateData.image = imageUrl
+            updateData.image = await uploadImage(req, res, 'classroom')
         }
 
         const updatedClassroom = await Classroom.findByIdAndUpdate(

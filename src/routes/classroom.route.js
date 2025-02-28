@@ -3,7 +3,6 @@ import * as classroomController from '#controllers/classroom'
 import validate from '#middlewares/validation'
 import { authorize } from '../middlewares/auth.middleware.js'
 import { ROLE } from '../enums/role.enum.js'
-import { getClassroomByPage } from '../services/classroom.service.js'
 import upload from '../middlewares/file.middleware.js'
 
 const router = express.Router()

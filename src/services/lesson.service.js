@@ -2,6 +2,7 @@ import { PAGE, PER_PAGE } from '#constants/index'
 import Lesson from '#models/lesson'
 import { uploadImage } from '#utils/github'
 import httpStatus from 'http-status'
+import Exercise from '../models/exercise.model.js'
 
 export const createLessonByCourseId = async (req, res) => {
     try {
@@ -179,8 +180,18 @@ export const getLessonsByCourseId = async (req, res) => {
         const { courseId } = req.params
         const lessons = await Lesson.find({ course_id: courseId })
 
+        const lessonsWithExercises = await Promise.all(
+            lessons.map(async (lesson) => {
+                const exercises = await Exercise.find({ lesson_id: lesson._id })
+                return {
+                    ...lesson.toObject(),
+                    exercises: exercises,
+                }
+            })
+        )
+
         return res.status(httpStatus.OK).json({
-            data: lessons,
+            data: lessonsWithExercises,
             message: 'Lấy danh sách lesson thành công',
         })
     } catch (e) {

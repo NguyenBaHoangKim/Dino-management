@@ -3,6 +3,11 @@ import BaseModel from './base.model.js'
 
 const questionSchema = new mongoose.Schema(
     {
+        exercise_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Exercise',
+            required: true,
+        },
         lesson_id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Lesson',
@@ -17,7 +22,7 @@ const questionSchema = new mongoose.Schema(
             required: true,
         },
         correct_answer: {
-            type: String,
+            type: [String],
             required: true,
         },
         index: {
@@ -27,6 +32,10 @@ const questionSchema = new mongoose.Schema(
         image: {
             type: String,
             default: '',
+        },
+        type_answer: {
+            type: String,
+            default: 'text',
         },
     },
     {

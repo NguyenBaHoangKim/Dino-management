@@ -23,7 +23,7 @@ const corsOptions = {
 app.use(cors(corsOptions))
 
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
+    windowMs: 2 * 60 * 1000,
     max: 100,
     message: 'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.',
     handler: (req, res, next, options) => {

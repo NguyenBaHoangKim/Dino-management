@@ -8,9 +8,9 @@ const answerSchema = new mongoose.Schema(
             ref: 'Question',
             required: true,
         },
-        lesson_id: {
+        exercise_id: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Lesson',
+            ref: 'Exercise',
             required: true,
         },
         user_id: {
@@ -19,8 +19,8 @@ const answerSchema = new mongoose.Schema(
             required: true,
         },
         answer: {
-            type: String,
-            default: '',
+            type: [String],
+            default: [],
         },
         is_correct: {
             type: Boolean,

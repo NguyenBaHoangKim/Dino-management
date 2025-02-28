@@ -5,17 +5,19 @@ import { uploadImage } from '../utils/github.util.js'
 
 export const createQuiz = async (req, res) => {
     try {
-        const { lesson_id, question, answers, correct_answer, index } = req.body
+        const { exercise_id, lesson_id, question, answers, correct_answer, index, type } = req.body
 
         const imageUrl = req.file ? await uploadImage(req, res, 'quiz') : ''
         // Create a new question
         const newQuestion = new Question({
             index: index,
             lesson_id: lesson_id,
+            exercise_id: exercise_id,
             question: question,
             answers: answers,
             correct_answer: correct_answer,
             image: imageUrl,
+            type_answer: type,
         })
 
         // Save the question to the database
@@ -34,16 +36,16 @@ export const createQuiz = async (req, res) => {
 
 export const editQuiz = async (req, res) => {
     try {
-        const { questionId, lesson_id, question, answers, correct_answer } = req.body
+        const { questionId, question, answers, correct_answer, type } = req.body
 
         // Update the question
         const updatedQuestion = await Question.findByIdAndUpdate(
             questionId,
             {
-                lesson_id: lesson_id,
                 question: question,
                 answers: answers,
                 correct_answer: correct_answer,
+                type_answer: type,
             },
             { new: true },
         )
@@ -67,7 +69,7 @@ export const editQuiz = async (req, res) => {
 
 export const deleteQuiz = async (req, res) => {
     try {
-        const questionId = req.params.questionId
+        const questionId = req.params.id
 
         // Delete the question
         const deletedQuestion = await Question.findByIdAndDelete(questionId)
@@ -126,18 +128,19 @@ export const getAllQuizs = async (req, res) => {
     }
 }
 
-export const getQuizsByLessonId = async (req, res) => {
+export const getQuizsByExerciseId = async (req, res) => {
     try {
-        const lessonId = req.params.lessonId
-        const questions = await Question.find({ lesson_id: lessonId })
+        const exerciseId = req.params.exerciseId
+        //exclude correct_answer
+        const questions = await Question.find({ exercise_id: exerciseId }).select('-correct_answer')
 
         return res.status(httpStatus.OK).json({
             data: questions,
-            message: 'Lấy tất cả Quiz theo Lesson ID thành công',
+            message: 'Lấy tất cả Quiz theo exercise ID thành công',
         })
     } catch (e) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            message: e.message || 'Lấy tất cả Quiz theo Lesson ID thất bại',
+            message: e.message || 'Lấy tất cả Quiz theo exercise ID thất bại',
         })
     }
 }
@@ -166,7 +169,7 @@ export const getNextQuestion = async (req, res) => {
 
 export const answerQuiz = async (req, res) => {
     try {
-        const { questionId, lessonId, userId, answer } = req.body
+        const { questionId, exerciseId, userId, answer } = req.body
 
         // Find the question
         const question = await Question.findById(questionId)
@@ -177,13 +180,19 @@ export const answerQuiz = async (req, res) => {
             })
         }
 
-        // Check if the answer is correct
-        const isCorrect = question.correct_answer === answer
+        let isCorrect = false
+        if (question.type_answer === 'one_choice') {
+            isCorrect = question.correct_answer === answer
+        } else {
+            isCorrect = Array.isArray(answer) && Array.isArray(question.correct_answer) &&
+                answer.length === question.correct_answer.length &&
+                answer.every((val, index) => val === question.correct_answer[index])
+        }
 
         // Create a new answer
         const newAnswer = new Answer({
             question_id: questionId,
-            lesson_id: lessonId,
+            exercise_id: exerciseId,
             user_id: userId,
             answer: answer,
             is_correct: isCorrect,
@@ -193,7 +202,10 @@ export const answerQuiz = async (req, res) => {
         await newAnswer.save()
 
         return res.status(httpStatus.CREATED).json({
-            data: isCorrect,
+            data: {
+                isCorrect: isCorrect,
+                correctAnswer: question.correct_answer,
+            },
             message: isCorrect ? 'Trả lời câu hỏi đúng' : 'Trả lời câu hỏi sai',
         })
     } catch (e) {
@@ -222,7 +234,7 @@ export const answerMultipleQuestions = async (req, res) => {
             const userAnswer = answers[i]
 
             // Check if the answer is correct
-            const isCorrect = userAnswer !== "" && question.correct_answer === userAnswer
+            const isCorrect = userAnswer !== '' && question.correct_answer === userAnswer
 
             // Create a new answer
             const newAnswer = new Answer({
@@ -242,7 +254,7 @@ export const answerMultipleQuestions = async (req, res) => {
         return res.status(httpStatus.CREATED).json({
             data: {
                 correct: count_correct,
-                total: questions.length
+                total: questions.length,
             },
             message: 'Trả lời câu hỏi thành công',
         })
@@ -253,12 +265,12 @@ export const answerMultipleQuestions = async (req, res) => {
     }
 }
 
-export const getQuizAndAnswerByUserIdAndLessonId = async (req, res) => {
+export const getQuizAndAnswerByUserIdAndExerciseId = async (req, res) => {
     try {
-        const { userId, lessonId } = req.body
+        const { userId, exerciseId } = req.body
 
         // Fetch all answers by the user for the specific lesson
-        const answers = await Answer.find({ user_id: userId, lesson_id: lessonId }).populate('question_id').lean()
+        const answers = await Answer.find({ user_id: userId, exercise_id: exerciseId }).populate('question_id').lean()
 
         if (!answers.length) {
             return res.status(httpStatus.NOT_FOUND).json({
