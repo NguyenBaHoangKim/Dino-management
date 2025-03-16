@@ -22,7 +22,7 @@ router
 router
     .route('/:lessonId')
     .get(lessonController.getLessonById)
-    .put(authorize(), validate, upload.single('images'), lessonController.editLesson)
+    .put(upload.single('images'), lessonController.editLesson)
     .delete(authorize(), lessonController.deleteLesson)
 
 export default router

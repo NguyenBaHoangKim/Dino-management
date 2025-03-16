@@ -11,8 +11,8 @@ router
     .get(quizController.getAllQuizs)
 
 router
-    .route('/edit/:id')
-    .put(upload.single('image'), authorize(), quizController.editQuiz)
+    .route('/edit')
+    .put(upload.single('image'), quizController.editQuiz)
 
 router
     .route('/delete/:id')

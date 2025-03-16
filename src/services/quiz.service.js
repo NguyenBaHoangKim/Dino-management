@@ -182,7 +182,7 @@ export const answerQuiz = async (req, res) => {
 
         let isCorrect = false
         if (question.type_answer === 'one_choice') {
-            isCorrect = question.correct_answer === answer
+            isCorrect = JSON.stringify(question.correct_answer) === JSON.stringify(answer)
         } else {
             isCorrect = Array.isArray(answer) && Array.isArray(question.correct_answer) &&
                 answer.length === question.correct_answer.length &&
@@ -192,7 +192,7 @@ export const answerQuiz = async (req, res) => {
         // Create a new answer
         const newAnswer = new Answer({
             question_id: questionId,
-            exercise_id: exerciseId,
+            exercise_id: question.exercise_id,
             user_id: userId,
             answer: answer,
             is_correct: isCorrect,
@@ -201,7 +201,7 @@ export const answerQuiz = async (req, res) => {
         // Save the answer to the database
         await newAnswer.save()
 
-        return res.status(httpStatus.CREATED).json({
+        return res.status(httpStatus.OK).json({
             data: {
                 isCorrect: isCorrect,
                 correctAnswer: question.correct_answer,

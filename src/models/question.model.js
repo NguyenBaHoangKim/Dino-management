@@ -35,7 +35,7 @@ const questionSchema = new mongoose.Schema(
         },
         type_answer: {
             type: String,
-            default: 'text',
+            default: 'default',
         },
     },
     {

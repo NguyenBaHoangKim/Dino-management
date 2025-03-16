@@ -32,6 +32,10 @@ export const likeForum = async (req, res) => {
     await forumService.likeForum(req, res)
 }
 
+export const getListForumLikedByUserId = async (req, res) => {
+    await forumService.getListForumLikedByUserId(req, res)
+}
+
 export const isLikedForum = async (req, res) => {
     return await forumService.isLikedForum(req, res)
 }

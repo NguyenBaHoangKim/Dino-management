@@ -40,13 +40,14 @@ export const editLesson = async (req, res) => {
         const lessonId = req.params.lessonId
         const { title, description, videoUrl, images, body, status } = req.body
 
+        const imageUrl = req.file ? await uploadImage(req, res, 'lessons') : images
         const updatedLesson = await Lesson.findByIdAndUpdate(
             lessonId,
             {
                 title: title,
                 description: description,
                 video_url: videoUrl,
-                images: images,
+                images: imageUrl,
                 body: body,
                 status: status,
             },

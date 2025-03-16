@@ -204,8 +204,8 @@ export const getListForumsBaseOnUserId = async (req, res) => {
             if (forum.user_id) {
                 forum.user_id = forum.user_id.transformUserInformation()
             }
-            let is_liked = false;
-            let is_reposted = false;
+            let is_liked = false
+            let is_reposted = false
             if (userId) {
                 const likeHistory = await LikeHistory.findOne({
                     user_id: userId,
@@ -222,7 +222,7 @@ export const getListForumsBaseOnUserId = async (req, res) => {
                 comment_count: commentCount,
                 repost_count: repostCount,
                 is_liked: is_liked,
-                is_reposted: is_reposted
+                is_reposted: is_reposted,
             }
         }))
 
@@ -330,6 +330,26 @@ export const likeForum = async (req, res) => {
     }
 }
 
+export const getListForumLikedByUserId = async (req, res) => {
+    try {
+        const { userId } = req.params
+
+        const likedForums = await LikeHistory.find({ user_id: userId, liketable_type: LIKE_TYPE.FORUM })
+        const forumIds = likedForums.map(likeHistory => likeHistory.liketable_id)
+
+        const forums = await Forum.find({ _id: { $in: forumIds } })
+
+        return res.status(httpStatus.OK).json({
+            data: forums,
+            message: 'Lấy danh sách forums đã thích thành công',
+        })
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: error.message || 'Failed to get list forum liked by user',
+        })
+    }
+}
+
 export const repostAForum = async (req, res) => {
     try {
         const { forumId, userId, comment } = req.body
@@ -353,8 +373,7 @@ export const repostAForum = async (req, res) => {
             return res.status(httpStatus.OK).json({
                 message: 'Repost removed successfully',
             })
-        }
-        else {
+        } else {
             const newRepost = new Repost({
                 originalPost: forumId,
                 user_id: userId,
@@ -380,7 +399,7 @@ export const getRepostByUserId = async (req, res) => {
         const { userId } = req.params
         const reposts = await Repost.find({ user_id: userId }).populate({
             path: 'originalPost',
-            populate: { path: 'user_id' }
+            populate: { path: 'user_id' },
         })
 
         reposts.forEach((repost) => {

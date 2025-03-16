@@ -40,4 +40,8 @@ router
     .route('/repost/:userId')
     .get(forumController.getRepostForumByUserId)
 
+router
+    .route('/like/user/:userId')
+    .get(forumController.getListForumLikedByUserId)
+
 export default router
