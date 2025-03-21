@@ -145,6 +145,22 @@ export const getQuizsByExerciseId = async (req, res) => {
     }
 }
 
+export const getQuizsByExerciseIdForTeacher = async (req, res) => {
+    try {
+        const exerciseId = req.params.exerciseId
+        const questions = await Question.find({ exercise_id: exerciseId })
+
+        return res.status(httpStatus.OK).json({
+            data: questions,
+            message: 'Lấy tất cả Quiz theo exercise ID thành công',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Lấy tất cả Quiz theo exercise ID thất bại',
+        })
+    }
+}
+
 export const getNextQuestion = async (req, res) => {
     try {
         const { lessonId, index } = req.body
@@ -288,3 +304,32 @@ export const getQuizAndAnswerByUserIdAndExerciseId = async (req, res) => {
         })
     }
 }
+
+export const returnScore = async (req, res) => {
+
+}
+
+export const checkSumittedExercise = async (req, res) => {
+    try {
+        const { userId, exerciseId } = req.body
+        const answer = await Answer.findOne({ user_id: userId, exercise_id: exerciseId })
+
+        if (answer) {
+            return res.status(httpStatus.OK).json({
+                submitted: true,
+                message: 'Bài tập đã được nộp',
+            })
+        }
+
+        return res.status(httpStatus.OK).json({
+            submitted: false,
+            message: 'Bài tập chưa được nộp',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Kiểm tra bài tập đã nộp thất bại',
+        })
+    }
+}
+
+

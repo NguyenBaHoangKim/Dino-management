@@ -27,6 +27,10 @@ router
     .get(quizController.getQuizsByExerciseId)
 
 router
+    .route('/exercise/teacher/:exerciseId')
+    .get(quizController.getQuizsByExerciseIdForTeacher)
+
+router
     .route('/next-question')
     .post(quizController.getNextQuestion)
 
@@ -40,6 +44,6 @@ router
 
 router
     .route('/get-submitted-quiz')
-    .post(quizController.getQuizAndAnswerByUserIdAndLessonId)
+    .post(quizController.getQuizAndAnswerByUserIdAndExerciseId)
 
 export default router

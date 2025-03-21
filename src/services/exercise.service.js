@@ -4,13 +4,14 @@ import httpStatus from 'http-status'
 // Create a new exercise
 export const createExercise = async (req, res) => {
     try {
-        const { lesson_id, type, description, title, time } = req.body
+        const { lesson_id, type, description, title, time, end_date } = req.body
         const exercise = new Exercise({
             lesson_id: lesson_id,
             type: type,
             description: description,
             title: title,
             time: time,
+            end_date: end_date,
         })
         await exercise.save()
         return res.status(httpStatus.CREATED).json({
@@ -51,12 +52,13 @@ export const getExerciseById = async (req, res) => {
 export const updateExercise = async (req, res) => {
     try {
         const exerciseId = req.params.exerciseId
-        const { type, description, title, time } = req.body
+        const { type, description, title, time, end_date } = req.body
         const exercise = await Exercise.findByIdAndUpdate(exerciseId, {
             type: type,
             description: description,
             title: title,
             time: time,
+            end_date: end_date,
         }, { new: true })
 
         if (!exercise) {

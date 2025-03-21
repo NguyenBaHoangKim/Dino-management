@@ -24,6 +24,10 @@ export const getQuizsByExerciseId = async (req, res) => {
     await quizService.getQuizsByExerciseId(req, res)
 }
 
+export const getQuizsByExerciseIdForTeacher = async (req, res) => {
+    await quizService.getQuizsByExerciseIdForTeacher(req, res)
+}
+
 export const getNextQuestion = async (req, res) => {
     await quizService.getNextQuestion(req, res)
 }
@@ -36,6 +40,6 @@ export const answerMultipleQuiz = async (req, res) => {
     await quizService.answerMultipleQuestions(req, res)
 }
 
-export const getQuizAndAnswerByUserIdAndLessonId = async (req, res) => {
-    await quizService.getQuizAndAnswerByUserIdAndLessonId(req, res)
+export const getQuizAndAnswerByUserIdAndExerciseId = async (req, res) => {
+    await quizService.getQuizAndAnswerByUserIdAndExerciseId(req, res)
 }
