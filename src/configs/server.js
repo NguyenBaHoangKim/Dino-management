@@ -43,7 +43,7 @@ app.use(pino({ logger }))
 app.use(cookieParser())
 app.use(authConfig)
 
-app.use('/docs', ...openApiMiddleware)
+//app.use('/docs', ...openApiMiddleware)
 app.use('/api', routes)
 
 export default app
