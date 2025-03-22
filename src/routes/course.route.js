@@ -30,6 +30,10 @@ router
     .get(courseController.getCourseForMember)
 
 router
+    .route('/member/list-member/:courseId')
+    .get(courseController.getMemberInCourse)
+
+router
     .route('/add-student')
     .post(courseController.addStudentToCourse)
 

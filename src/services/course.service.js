@@ -177,6 +177,31 @@ export const getCourseForMember = async (req, res) => {
     }
 }
 
+export const getMemberInCourse = async (req, res) => {
+    try {
+        const { courseId } = req.params
+        //getMemberInCourse
+        const members = await CourseMember.find({ course_id: courseId }).populate('user_id')
+        //
+        // if (!members) {
+        //     return res.status(httpStatus.NOT_FOUND).json({
+        //         message: 'Không tìm thấy học viên',
+        //     })
+        // }
+
+        const memberIds = members.map(member => member.user_id.transformUserInformation())
+
+        return res.status(httpStatus.OK).json({
+            data: memberIds,
+            message: 'Lấy học viên thành công',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Không tìm thấy course',
+        })
+    }
+}
+
 export const getCourseById = async (req, res) => {
     try {
         const courseId = req.params.courseId

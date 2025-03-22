@@ -43,3 +43,7 @@ export const removeStudentFromCourse = async (req, res) => {
 export const getCourseForMember = async (req, res) => {
     await courseService.getCourseForMember(req, res)
 }
+
+export const getMemberInCourse = async (req, res) => {
+    await courseService.getMemberInCourse(req, res)
+}
