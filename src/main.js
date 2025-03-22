@@ -11,7 +11,7 @@ const { port } = config
 const server = http.createServer(app)
 
 // Khởi tạo Socket.IO
-initSocket(server)
+//initSocket(server)
 
 export default async function main() {
     try {
