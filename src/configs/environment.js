@@ -3,7 +3,11 @@ import { bool, cleanEnv, num, str } from 'envalid'
 import { LogFormat, LogLevel } from '#enums/log'
 
 const appPath = path.dirname(import.meta.url).replace('file:///', '')
-console.log(path.join(appPath, '../../openapi.yaml'))
+
+const openApiPath = path.join(appPath, '../../openapi.yaml')
+console.log(openApiPath)
+
+
 const env = cleanEnv(process.env, {
     NODE_ENV: str({
         choices: ['development', 'test', 'production', 'staging'],
@@ -46,7 +50,7 @@ const env = cleanEnv(process.env, {
 
 export default Object.freeze({
     appPath,
-    openApiPath: path.join(appPath, '../../openapi.yaml'),
+    openApiPath: openApiPath,
     version: '1.0.0',
     env: env.NODE_ENV,
     isProduction: env.NODE_ENV === 'production',

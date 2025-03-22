@@ -1,8 +1,13 @@
 import { context, isSpanContextValid, trace } from '@opentelemetry/api'
 import { pino } from 'pino'
 import path from 'path'
+import { fileURLToPath } from 'url'
 import config from '#configs/environment'
 import { LogFormat } from '#enums/log'
+
+// Get the current file path and directory name
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 function otelMixin() {
     if (!config.otel.isEnabled) {
