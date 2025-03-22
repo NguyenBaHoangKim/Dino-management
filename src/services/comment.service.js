@@ -9,6 +9,7 @@ import Project from '../models/project.model.js'
 import Lesson from '../models/lesson.model.js'
 import Course from '../models/course.model.js'
 import { getSocketInstance, onlineUsers } from '#configs/socket'
+import SubComment from '../models/subComment.model.js'
 
 export const createComment = async (req, res) => {
     try {
@@ -20,15 +21,32 @@ export const createComment = async (req, res) => {
             })
         }
 
-        const newComment = new Comment({
-            content: content,
-            user_id: userId,
-            commentable_id: commentableId,
-            commentable_type: commentableType,
-            parent_id: parentId,
-        })
+        let newComment
+        if (parentId) {
+            newComment = new SubComment({
+                content: content,
+                user_id: userId,
+                commentable_id: commentableId,
+                commentable_type: commentableType,
+                parent_id: parentId,
+            })
+        } else {
+            newComment = new Comment({
+                content: content,
+                user_id: userId,
+                commentable_id: commentableId,
+                commentable_type: commentableType,
+            })
+        }
 
-        let owner;
+        const savedComment = await newComment.save()
+        await savedComment.populate('user_id')
+        if (savedComment.user_id) {
+            savedComment.user_id = savedComment.user_id.transformUserInformation()
+        }
+
+        // Emit event to notify users
+        let owner
         if (commentableType === COMMENT_TYPE.FORUM) {
             const forum = await Forum.findById(commentableId)
             if (!forum) {
@@ -49,36 +67,35 @@ export const createComment = async (req, res) => {
             project.comment_count += 1
             await project.save()
             owner = project.user_id.toString()
-        } else if (commentableType === COMMENT_TYPE.LESSON) {
-            const lesson = await Lesson.findById(commentableId)
-            if (!lesson) {
-                return res.status(httpStatus.NOT_FOUND).json({
-                    message: 'Không tìm thấy Lesson',
-                })
-            }
-            lesson.comment_count += 1
-            await lesson.save()
-            owner = lesson.user_id.toString()
-        } else if (commentableType === COMMENT_TYPE.COURSE) {
-            const course = await Course.findById(commentableId)
-            if (!course) {
-                return res.status(httpStatus.NOT_FOUND).json({
-                    message: 'Không tìm thấy Course',
-                })
-            }
-            course.comment_count += 1
-            await course.save()
-            owner = course.user_id.toString()
         }
-
-        const io = getSocketInstance()
-
-
-        const postOwnerSocketId = onlineUsers.get(owner);
-        if (postOwnerSocketId) {
-            io.to(postOwnerSocketId).emit('newNotification', 'New comment created o day nee')
-        }
-
+        // else if (commentableType === COMMENT_TYPE.LESSON) {
+        //     const lesson = await Lesson.findById(commentableId)
+        //     if (!lesson) {
+        //         return res.status(httpStatus.NOT_FOUND).json({
+        //             message: 'Không tìm thấy Lesson',
+        //         })
+        //     }
+        //     lesson.comment_count += 1
+        //     await lesson.save()
+        //     owner = lesson.user_id.toString()
+        // } else if (commentableType === COMMENT_TYPE.COURSE) {
+        //     const course = await Course.findById(commentableId)
+        //     if (!course) {
+        //         return res.status(httpStatus.NOT_FOUND).json({
+        //             message: 'Không tìm thấy Course',
+        //         })
+        //     }
+        //     course.comment_count += 1
+        //     await course.save()
+        //     owner = course.user_id.toString()
+        // }
+        // const io = getSocketInstance()
+        //
+        //
+        // const postOwnerSocketId = onlineUsers.get(owner);
+        // if (postOwnerSocketId) {
+        //     io.to(postOwnerSocketId).emit('newNotification', 'New comment created o day nee')
+        // }
         // if (onlineUsers.has(owner.toString())) {
         //     const notification = {
         //         title: 'Có người vừa comment vào bài viết của bạn',
@@ -90,12 +107,6 @@ export const createComment = async (req, res) => {
         //     io.to(owner.toString()).emit('newNotification', notification)
         // }
 
-        const savedComment = await newComment.save()
-        await savedComment.populate('user_id')
-        if (savedComment.parent_id) {
-            savedComment.user_id = savedComment.user_id.transformUserInformation()
-        }
-
         return res.status(httpStatus.CREATED).json({
             data: savedComment,
             message: 'Tạo Comment thành công',
@@ -103,36 +114,6 @@ export const createComment = async (req, res) => {
     } catch (error) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
             message: error.message || 'Không thể tạo Comment',
-        })
-    }
-}
-
-export const createSubComment = async (req, res) => {
-    try {
-        const { content, commentableId, commentableType, userId, parentId } =
-            req.body
-
-        const newSubComment = new Comment({
-            content: content,
-            user_id: userId,
-            commentable_id: commentableId,
-            commentable_type: commentableType,
-            parent_id: parentId,
-        })
-
-        const savedSubComment = await newSubComment.save()
-
-        // Emit event to notify users
-        const io = req.app.get('socketio')
-        io.emit('newSubComment', 'New sub-comment created o day nee')
-
-        return res.status(httpStatus.CREATED).json({
-            data: savedSubComment,
-            message: 'Tạo sub-Comment thành công',
-        })
-    } catch (error) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            message: error.message || 'Không thể tạo sub-Comment',
         })
     }
 }
@@ -166,20 +147,45 @@ export const getCommentsByCommentableId = async (req, res) => {
 
         const skip = (page - 1) * perPage
         const limit = perPage
+
         const comments = await Comment.find({ commentable_id: commentableId })
             .skip(skip)
             .limit(limit)
+            .populate('user_id')
 
-        if (!comments.length) {
-            return res.status(httpStatus.NOT_FOUND).json({
-                message: 'Không có Comment nào cho đối tượng này',
+        comments.forEach((cmt) => {
+            if (cmt.user_id)
+                cmt.user_id = cmt.user_id.transformUserInformation()
+        })
+
+
+        const totalComments = await Comment.countDocuments({ commentable_id: commentableId })
+
+        const commentIds = comments.map(comment => comment._id)
+        const subCommentsMap = {}
+
+        for (const commentId of commentIds) {
+            const subComments = await SubComment.find({ parent_id: commentId })
+                .populate('user_id')
+                .limit(5)
+
+            subCommentsMap[commentId] = subComments.map(subComment => {
+                if (subComment.user_id) {
+                    subComment.user_id = subComment.user_id.transformUserInformation()
+                }
+                return subComment
             })
         }
 
+        const structuredComments = comments.map(comment => ({
+            ...comment.toObject(),
+            sub_comments: subCommentsMap[comment._id] || [],
+        }))
+
         return res.status(httpStatus.OK).json({
-            data: comments,
+            data: structuredComments,
             page: page,
-            totalPages: Math.ceil(comments.length / perPage),
+            totalPages: Math.ceil(totalComments / perPage),
             message: 'Lấy Comment thành công',
         })
     } catch (error) {
@@ -208,7 +214,7 @@ export const getCommentByCommentableIdBySubComment = async (req, res) => {
             .skip(skip)
             .limit(limit)
             .populate('user_id')
-            //.sort({ createdAt: -1 })
+        //.sort({ createdAt: -1 })
 
         const totalComments = await Comment.countDocuments({ commentable_id: commentableId })
 
@@ -237,8 +243,8 @@ export const getCommentByCommentableIdBySubComment = async (req, res) => {
 
         return res.status(httpStatus.OK).json({
             data: structuredComments,
-            page,
-            totalPages: perPage === -1 ? 1 : Math.ceil(totalComments / perPage),
+            page: page,
+            totalPages: perPage === -1 ? 1 : Math.ceil(structuredComments.length / perPage),
             message: 'Lấy Comment cùng sub-Comment thành công',
         })
     } catch (error) {

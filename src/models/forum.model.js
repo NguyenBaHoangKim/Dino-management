@@ -21,6 +21,10 @@ const forumSchema = new mongoose.Schema(
             type: Number,
             default: 0,
         },
+        comment_count: {
+            type: Number,
+            default: 0,
+        },
         view_count: {
             type: Number,
             default: 0,

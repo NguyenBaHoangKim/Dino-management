@@ -26,6 +26,18 @@ router
     .get(courseController.getFavoriteCourses)
 
 router
+    .route('/member/:userId')
+    .get(courseController.getCourseForMember)
+
+router
+    .route('/add-student')
+    .post(courseController.addStudentToCourse)
+
+router
+    .route('/remove-student')
+    .post(courseController.removeStudentFromCourse)
+
+router
     .route('/:courseId')
     .get(courseController.getCourseById)
     .put(authorize(), validate, upload.single('file'), courseController.editCourse)

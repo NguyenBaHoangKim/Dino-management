@@ -193,7 +193,7 @@ export const getProjectsByUserId = async (req, res) => {
             perPage = PER_PAGE
         }
         const skip = (page - 1) * perPage
-        const limit = parseInt(perPage, 10)
+        const limit = parseInt(perPage,   10)
 
         const projects = await Project.find({ user_id: userId }).skip(skip).limit(limit)
         const totalProjects = await Project.countDocuments({ user_id: userId })

@@ -5,6 +5,7 @@ import httpStatus from 'http-status'
 import { PAGE, PER_PAGE } from '#constants/index'
 import { FAVOURITE_TYPE } from '../enums/favouriteType.enum.js'
 import Favorite from '../models/favorite.model.js'
+import CourseMember from '../models/courseMember.model.js'
 
 export const createCourse = async (req, res) => {
     try {
@@ -86,12 +87,92 @@ export const deleteCourse = async (req, res) => {
 
         await Lessson.deleteMany({ course_id: courseId })
 
+        await CourseMember.deleteMany({ course_id: courseId })
+
         return res.status(httpStatus.OK).json({
             message: 'Xóa course thành công',
         })
     } catch (e) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
             message: e.message || 'Xóa course thất bại',
+        })
+    }
+}
+
+//add student to course
+export const addStudentToCourse = async (req, res) => {
+    try {
+        const { courseId, studentId } = req.body
+
+        const checkCourseMember = await CourseMember.find({course_id: courseId, user_id: studentId})
+
+        if (checkCourseMember.length > 0) {
+            return res.status(httpStatus.BAD_REQUEST).json({
+                message: 'Học viên đã tồn tại trong course',
+            })
+        }
+
+        const courseMember = new CourseMember({
+            course_id: courseId,
+            user_id: studentId,
+        })
+
+        await courseMember.save()
+
+        return res.status(httpStatus.OK).json({
+            message: 'Thêm học viên vào course thành công',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Thêm học viên vào course thất bại',
+        })
+    }
+}
+
+//remove student from course
+export const removeStudentFromCourse = async (req, res) => {
+    try {
+        const { courseId, studentId } = req.body
+
+        const courseMember = await CourseMember.findOneAndDelete({ course_id: courseId, user_id: studentId })
+
+        if (!courseMember) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'Không tìm thấy học viên trong course',
+            })
+        }
+
+        return res.status(httpStatus.OK).json({
+            message: 'Xóa học viên khỏi course thành công',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Xóa học viên khỏi course thất bại',
+        })
+    }
+}
+
+export const getCourseForMember = async (req, res) => {
+    try {
+        const { userId } = req.params
+
+        const courses = await CourseMember.find({ user_id: userId }).populate('course_id')
+
+        if (!courses) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'Không tìm thấy course',
+            })
+        }
+
+        const courseIds = courses.map(courseMember => courseMember.course_id)
+
+        return res.status(httpStatus.OK).json({
+            data: courseIds,
+            message: 'Lấy course thành công',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Không tìm thấy course',
         })
     }
 }
@@ -318,3 +399,4 @@ export const likeCourse = async (req, res) => {
         })
     }
 }
+

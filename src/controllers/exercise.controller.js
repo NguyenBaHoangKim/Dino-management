@@ -19,3 +19,7 @@ export const deleteExercise = async (req, res) => {
 export const getAllExercises = async (req, res) => {
     await exerciseService.getAllExercises(req, res)
 }
+
+export const removeExerciseResultUser = async (req, res) => {
+    await exerciseService.removeExerciseResultUser(req, res)
+}

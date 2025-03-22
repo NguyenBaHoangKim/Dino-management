@@ -14,4 +14,8 @@ router
     .put(exerciseController.updateExercise)
     .delete(exerciseController.deleteExercise)
 
+router
+    .route('/remove-result')
+    .post(exerciseController.removeExerciseResultUser)
+
 export default router

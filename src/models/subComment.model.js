@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import BaseModel from '#models/base'
 import { COMMENT_TYPE } from '#enums/commentType'
 
-const commentSchema = new mongoose.Schema(
+const subCommentSchema = new mongoose.Schema(
     {
         content: {
             type: String,
@@ -22,6 +22,10 @@ const commentSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             required: true,
         },
+        parent_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Comment',
+        },
         like_count: {
             type: Number,
             default: 0,
@@ -32,8 +36,8 @@ const commentSchema = new mongoose.Schema(
     },
 )
 
-const baseModel = new BaseModel(commentSchema)
+const baseModel = new BaseModel(subCommentSchema)
 
-const Comment = baseModel.createModel('Comment')
+const SubComment = baseModel.createModel('SubComment')
 
-export default Comment
+export default SubComment

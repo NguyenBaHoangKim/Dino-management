@@ -7,7 +7,7 @@ const router = express.Router()
 
 router
     .route('/')
-    .post(authorize(), validate, commentController.createComment)
+    .post(validate, commentController.createComment)
     .get(commentController.getAllComments)
 
 router //dang thua

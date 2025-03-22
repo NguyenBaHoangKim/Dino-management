@@ -23,7 +23,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "builds": "echo \"Error: no build specified\" && exit 1",
+    "build": "echo \"Error: no build specified\" && npm install",
     "dev": "node --env-file=.env.development --watch bin/www.js",
     "start": "node bin/www.js"
   },

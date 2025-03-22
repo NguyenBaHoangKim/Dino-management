@@ -1,5 +1,6 @@
 import { context, isSpanContextValid, trace } from '@opentelemetry/api'
 import { pino } from 'pino'
+import path from 'path'
 import config from '#configs/environment'
 import { LogFormat } from '#enums/log'
 
@@ -37,7 +38,7 @@ const logger = pino({
         config.log.format === LogFormat.JSON
             ? undefined
             : {
-                target: './logger-pretty.js',
+                target: path.resolve('./src/configs/logger-pretty.js'),
                 options: {
                     ignore: 'appVersion',
                     translateTime: 'SYS:HH:MM:ss.l',

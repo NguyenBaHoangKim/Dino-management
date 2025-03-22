@@ -402,13 +402,15 @@ export const getRepostByUserId = async (req, res) => {
             populate: { path: 'user_id' },
         })
 
+        const repostList = reposts.map(repost => repost.originalPost)
+
         reposts.forEach((repost) => {
             if (repost.originalPost.user_id)
                 repost.originalPost.user_id = repost.originalPost.user_id.transformUserInformation()
         })
 
         return res.status(httpStatus.OK).json({
-            data: reposts,
+            data: repostList,
             message: 'Get reposts successfully',
         })
     } catch (error) {

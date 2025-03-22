@@ -31,3 +31,15 @@ export const getFavoriteCourses = async (req, res) => {
 export const changeCourseType = async (req, res) => {
     await courseService.setCourseType(req, res)
 }
+
+export const addStudentToCourse = async (req, res) => {
+    await courseService.addStudentToCourse(req, res)
+}
+
+export const removeStudentFromCourse = async (req, res) => {
+    await courseService.removeStudentFromCourse(req, res)
+}
+
+export const getCourseForMember = async (req, res) => {
+    await courseService.getCourseForMember(req, res)
+}
