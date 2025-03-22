@@ -38,7 +38,7 @@ const logger = pino({
         config.log.format === LogFormat.JSON
             ? undefined
             : {
-                target: path.resolve('./src/configs/logger-pretty.js'),
+                target: path.resolve(__dirname, './logger-pretty.js'),
                 options: {
                     ignore: 'appVersion',
                     translateTime: 'SYS:HH:MM:ss.l',

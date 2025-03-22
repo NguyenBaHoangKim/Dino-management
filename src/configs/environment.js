@@ -3,7 +3,7 @@ import { bool, cleanEnv, num, str } from 'envalid'
 import { LogFormat, LogLevel } from '#enums/log'
 
 const appPath = path.dirname(import.meta.url).replace('file:///', '')
-
+console.log(path.join(appPath, '../../openapi.yaml'))
 const env = cleanEnv(process.env, {
     NODE_ENV: str({
         choices: ['development', 'test', 'production', 'staging'],
