@@ -1,12 +1,18 @@
 import path from 'path'
 import { bool, cleanEnv, num, str } from 'envalid'
 import { LogFormat, LogLevel } from '#enums/log'
+import { fileURLToPath } from 'url'
 
-const appPath = path.dirname(import.meta.url).replace('file:///', '')
+// Get the current file path and directory name
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-const openApiPath = path.join(appPath, '../../openapi.yaml')
-console.log(openApiPath)
+// Define the appPath variable
+const appPath = path.resolve(__dirname, '..', '..')
 
+// Calculate the path to openapi.yaml from the root directory
+const openApiPath = path.join(appPath, 'openapi.yaml')
+console.log('OpenAPI Path:', openApiPath)
 
 const env = cleanEnv(process.env, {
     NODE_ENV: str({
@@ -15,7 +21,7 @@ const env = cleanEnv(process.env, {
     }),
     PORT: num({ default: 3000 }),
     JWT_SECRET: str(),
-    JWT_ACCESS_EXPIRATION_MINUTES: num({ default: 60 }), //60
+    JWT_ACCESS_EXPIRATION_MINUTES: num({ default: 60 }), // 60
     JWT_REFRESH_EXPIRATION_MINUTES: num({ default: 7 * 24 * 60 * 60 * 1000 }),
     MONGO_URI: str(),
     EMAIL_HOST: str(),
@@ -50,7 +56,7 @@ const env = cleanEnv(process.env, {
 
 export default Object.freeze({
     appPath,
-    openApiPath: openApiPath,
+    openApiPath,
     version: '1.0.0',
     env: env.NODE_ENV,
     isProduction: env.NODE_ENV === 'production',
