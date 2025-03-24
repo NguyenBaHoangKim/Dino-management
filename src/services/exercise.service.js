@@ -153,3 +153,33 @@ export const removeExerciseResultUser = async (req, res) => {
         })
     }
 }
+
+export const getExerciseByLessonIdForStudent = async (req, res) => {
+    try {
+        const { lessonId, userId } = req.params
+        const exercises = await Exercise.find({ lesson_id: lessonId })
+
+        if (!exercises) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'Không tìm thấy bài tập',
+            })
+        }
+
+        for (let i = 0; i < exercises.length; i++) {
+            const score = await Score.findOne({ user_id: userId, exercise_id: exercises[i]._id })
+            if (score) {
+                exercises[i].score = score.score
+            }
+        }
+
+
+        return res.status(httpStatus.OK).json({
+            data: exercises,
+            message: 'Lấy bài tập theo lesson thành công',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Lấy bài tập theo lesson thất bại',
+        })
+    }
+}

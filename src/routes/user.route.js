@@ -1,12 +1,16 @@
 import express from 'express'
 import * as userController from '#controllers/user'
 import { authorize } from '#middlewares/auth'
-import validate from '#middlewares/validation'
+// import validate from '#middlewares/validation'
 import upload from '../middlewares/file.middleware.js'
 import { ROLE } from '../enums/role.enum.js'
 import { getAllUsers } from '#controllers/user'
 
 const router = express.Router()
+
+router
+    .route('/')
+    .get(userController.getAllUsers)
 
 router
     .route('/me')
@@ -17,16 +21,12 @@ router
     .put(authorize(), upload.single('avatar'), userController.editUser)
 
 router
-    .route('/')
-    .get(userController.getAllUsers)
-
-router
     .route('/find')
     .get(userController.findUser)
 
 router
     .route('/reset-password')
-    .post(validate, authorize(), userController.sendPasswordReset)
+    .post(authorize(), userController.sendPasswordReset)
 
 router
     .route('/change-role')

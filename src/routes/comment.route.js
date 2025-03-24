@@ -1,18 +1,18 @@
 import express from 'express'
 import * as commentController from '#controllers/comment'
-import validate from '#middlewares/validation'
+// import validate from '#middlewares/validation'
 import { authorize } from '../middlewares/auth.middleware.js'
 
 const router = express.Router()
 
 router
     .route('/')
-    .post(validate, commentController.createComment)
+    .post(commentController.createComment)
     .get(commentController.getAllComments)
 
 router //dang thua
     .route('/sub')
-    .post(validate, commentController.createSubComment)
+    .post(commentController.createSubComment)
 
 router
     .route('/commentable/:commentableId')
@@ -24,12 +24,12 @@ router
 
 router
     .route('/:commentId')
-    .put(authorize(), validate, commentController.editComment)
+    .put(authorize(), commentController.editComment)
     .get(commentController.getCommentById)
     .delete(commentController.deleteComment)
 
 router
     .route('/like')
-    .post(authorize(), validate, commentController.likeComment)
+    .post(authorize(), commentController.likeComment)
 
 export default router

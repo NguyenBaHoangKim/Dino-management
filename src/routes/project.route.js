@@ -1,7 +1,7 @@
 import express from 'express'
 import * as projectController from '#controllers/project'
 import upload from '#middlewares/file'
-import validate from '#middlewares/validation'
+// import validate from '#middlewares/validation'
 import { authorize } from '../middlewares/auth.middleware.js'
 
 const router = express.Router()
@@ -26,7 +26,7 @@ router
 
 router
     .route('/favorite')
-    .post(authorize(), validate, projectController.addProjectToFavorites) //add or remove
+    .post(authorize(), projectController.addProjectToFavorites) //add or remove
     .get(projectController.getFavoriteProjects)
 
 router

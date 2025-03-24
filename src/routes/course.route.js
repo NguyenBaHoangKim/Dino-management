@@ -1,19 +1,19 @@
 import express from 'express'
 import * as courseController from '#controllers/course'
 import upload from '#middlewares/file'
-import validate from '#middlewares/validation'
+// import validate from '#middlewares/validation'
 import { authorize } from '../middlewares/auth.middleware.js'
 
 const router = express.Router()
 
 router
     .route('/')
-    .post(authorize(), validate, upload.single('file'), courseController.createCourse)
+    .post(authorize(), upload.single('file'), courseController.createCourse)
     .get(courseController.getListCoursePerPage)
 
 router
     .route('/favorite') //phai cho len truoc /:courseId
-    .post(authorize(), validate, courseController.addCourseFavorite)
+    .post(authorize(), courseController.addCourseFavorite)
     .get(courseController.getFavoriteCourses)
 
 router
@@ -22,7 +22,7 @@ router
 
 router
     .route('/favorite')
-    .post(authorize(), validate, courseController.addCourseFavorite)
+    .post(authorize(), courseController.addCourseFavorite)
     .get(courseController.getFavoriteCourses)
 
 router

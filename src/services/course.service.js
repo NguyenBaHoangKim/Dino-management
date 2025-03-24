@@ -40,14 +40,19 @@ export const createCourse = async (req, res) => {
 export const editCourse = async (req, res) => {
     try {
         const courseId = req.params.courseId
-        const { title, description, startDate, endDate, certification, teacherId, image } =
+        let { title, description, startDate, endDate, certification, teacherId, image, isDeleteImg } =
             req.body
 
         let imageUrl = ""
         let newImages = false
-        if (req.file) {
+        isDeleteImg = isDeleteImg === 'true'
+        if (req.file && !isDeleteImg) {
             imageUrl = await uploadImage(req, res, 'courses')
             newImages = true
+        }
+        //check if isDeleteImg is true, delete old image
+        if (isDeleteImg) {
+            image = []
         }
         const updatedCourse = await Course.findByIdAndUpdate(
             courseId,

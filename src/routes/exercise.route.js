@@ -9,13 +9,17 @@ router
     .get(exerciseController.getAllExercises)
 
 router
+    .route('/remove-result')
+    .post(exerciseController.removeExerciseResultUser)
+
+router
     .route('/:exerciseId')
     .get(exerciseController.getExerciseById)
     .put(exerciseController.updateExercise)
     .delete(exerciseController.deleteExercise)
 
 router
-    .route('/remove-result')
-    .post(exerciseController.removeExerciseResultUser)
+    .route('/exercise/:lessonId/:userId')
+    .get(exerciseController.getExerciseByLessonIdForStudent)
 
 export default router

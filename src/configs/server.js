@@ -45,14 +45,5 @@ app.use(authConfig)
 
 //app.use('/docs', ...openApiMiddleware)
 app.use('/api', routes)
-// Thêm route cho `/`
-app.get('/', (req, res) => {
-    res.status(200).json({ message: 'Welcome to Dino Management API' });
-});
-
-// Thêm route cho `/favicon.ico`
-app.get('/favicon.ico', (req, res) => {
-    res.status(204).end(); // Trả về 204 No Content
-});
 
 export default app

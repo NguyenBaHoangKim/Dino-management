@@ -1,6 +1,6 @@
 import express from 'express'
 import * as classroomController from '#controllers/classroom'
-import validate from '#middlewares/validation'
+// import validate from '#middlewares/validation'
 import { authorize } from '../middlewares/auth.middleware.js'
 import { ROLE } from '../enums/role.enum.js'
 import upload from '../middlewares/file.middleware.js'
@@ -9,7 +9,7 @@ const router = express.Router()
 
 router
     .route('/')
-    .post(authorize([ROLE.TEACHER]), upload.single('image'), validate, classroomController.createClassroom)
+    .post(authorize([ROLE.TEACHER]), upload.single('image'), classroomController.createClassroom)
     .get(classroomController.getClassroomByPage)
 
 router
@@ -26,17 +26,17 @@ router
 
 router
     .route('/add-student')
-    .post(authorize([ROLE.TEACHER]), validate, classroomController.addStudentToClassroom)
+    .post(authorize([ROLE.TEACHER]), classroomController.addStudentToClassroom)
 
 router
     .route('/:classroomId')
-    .put(authorize(), upload.single('image'), validate, classroomController.editClassroom)
+    .put(authorize(), upload.single('image'), classroomController.editClassroom)
     .get(classroomController.getClassroomById)
     .delete(authorize(), classroomController.deleteClassroom)
 
 router
     .route('/course')
-    .post(authorize(), validate, classroomController.addCourse)
+    .post(authorize(), classroomController.addCourse)
 
 router
     .route('/course/delete')

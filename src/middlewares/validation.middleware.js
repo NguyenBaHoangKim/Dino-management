@@ -9,4 +9,4 @@ openapi.init(config.openApiPath, {
     ],
 })
 
-export default validate
+// export default validate

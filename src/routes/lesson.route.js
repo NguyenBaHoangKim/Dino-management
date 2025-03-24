@@ -1,7 +1,7 @@
 import express from 'express'
 import * as lessonController from '#controllers/lesson'
 import upload from '#middlewares/file'
-import validate from '#middlewares/validation'
+// import validate from '#middlewares/validation'
 import { authorize } from '../middlewares/auth.middleware.js'
 
 const router = express.Router()
@@ -12,11 +12,11 @@ router
 
 router
     .route('/status/:lessonId')
-    .patch(authorize(), validate, lessonController.changeLessonStatus)
+    .patch(authorize(), lessonController.changeLessonStatus)
 
 router
     .route('/course/:courseId')
-    .post(authorize(), validate, upload.single('images'), lessonController.createLessonByCourseId)
+    .post(authorize(), upload.single('images'), lessonController.createLessonByCourseId)
     .get(lessonController.getLessonsByCourseId)
 
 router

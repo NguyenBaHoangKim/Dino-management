@@ -1,7 +1,7 @@
 import express from 'express'
 import * as authController from '#controllers/auth'
 import { authorize, oAuth as oAuthLogin } from '#middlewares/auth'
-import validate from '#middlewares/validation'
+// import validate from '#middlewares/validation'
 
 const router = express.Router()
 
@@ -11,7 +11,7 @@ router //
 
 router //
     .route('/login')
-    .post(validate, authController.login)
+    .post(authController.login)
 
 router //
     .route('/logout')

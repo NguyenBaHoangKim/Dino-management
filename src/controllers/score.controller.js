@@ -11,3 +11,7 @@ export const getScore = async (req, res) => {
 export const getScoreByUserIdAndLessonId = async (req, res) => {
     await scoreService.getScoreByUserIdAndLessonId(req, res)
 }
+
+export const getListAverageScoreInCourse = async (req, res) => {
+    await scoreService.getListAverageScoreInCourse(req, res)
+}

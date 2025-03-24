@@ -37,17 +37,26 @@ export const createLessonByCourseId = async (req, res) => {
 
 export const editLesson = async (req, res) => {
     try {
-        const lessonId = req.params.lessonId
-        const { title, description, videoUrl, images, body, status } = req.body
+        const lessonId = req.params
+        let { title, description, videoUrl, images, body, status, isDeleteImg } = req.body
 
-        const imageUrl = req.file ? await uploadImage(req, res, 'lessons') : images
+        let imageUrl = ""
+        let newImages = false
+        isDeleteImg = isDeleteImg === 'true'
+        if (req.file && !isDeleteImg) {
+            imageUrl = await uploadImage(req, res, 'lessons')
+            newImages = true
+        }
+        if (isDeleteImg) {
+            imageUrl = []
+        }
         const updatedLesson = await Lesson.findByIdAndUpdate(
             lessonId,
             {
                 title: title,
                 description: description,
                 video_url: videoUrl,
-                images: imageUrl,
+                images: newImages ? imageUrl : images,
                 body: body,
                 status: status,
             },

@@ -1,15 +1,20 @@
-import Score from '#models/score.model'
+import Score from '#models/score'
 import httpStatus from 'http-status'
+import Exercise from '../models/exercise.model.js'
+import Lesson from '../models/lesson.model.js'
 
 export const createScore = async (req, res) => {
     try {
-        const { userId, exerciseId, lessonId, courseId, score } = req.body
+        const { userId, exerciseId, score } = req.body
+
+        const exercise = await Exercise.findById(exerciseId)
+        const lesson = await Lesson.findById(exercise.lesson_id)
 
         const newScore = new Score({
             user_id: userId,
-            course_id: courseId,
+            course_id: lesson.course_id,
             exercise_id: exerciseId,
-            lesson_id: lessonId,
+            lesson_id: exercise.lesson_id,
             score: score,
         })
 
@@ -128,10 +133,10 @@ export const getAverageScoreByUserIdInLesson = async (req, res) => {
 }
 
 //in exercise have many user so, we need to calculate average score of each user return list of user with average score
-export const getListAverageScoreInExercise = async (req, res) => {
+export const getListAverageScoreInCourse = async (req, res) => {
     try {
-        const { exerciseId } = req.params
-        const scores = await Score.find({exercise_id: exerciseId })
+        const { courseId } = req.params
+        const scores = await Score.find({course_id: courseId })
         if (!scores) {
             return res.status(httpStatus.NOT_FOUND).json({
                 message: 'Không tìm thấy điểm số',
@@ -153,7 +158,7 @@ export const getListAverageScoreInExercise = async (req, res) => {
             userScore[user].forEach((score) => {
                 sum += score
             })
-            const average = sum / userScore[user].length
+            const average = (sum / userScore[user].length).toFixed(2)
             listUserAverageScore.push({
                 user_id: user,
                 average_score: average,
