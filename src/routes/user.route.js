@@ -4,16 +4,13 @@ import { authorize } from '#middlewares/auth'
 import validate from '#middlewares/validation'
 import upload from '../middlewares/file.middleware.js'
 import { ROLE } from '../enums/role.enum.js'
+import { getAllUsers } from '#controllers/user'
 
 const router = express.Router()
 
 router
     .route('/me')
     .get(authorize(), userController.getCurrentUser)
-
-router
-    .route('/:id')
-    .get(authorize(), userController.getUserById)
 
 router
     .route('/edit')
@@ -34,5 +31,10 @@ router
 router
     .route('/change-role')
     .put(authorize([ROLE.ADMIN]), userController.changeUserRole)
+
+router
+    .route('/:id')
+    .get(authorize(), userController.getUserById)
+
 
 export default router

@@ -3,6 +3,7 @@ import User from '#models/user'
 import { getUserByToken } from '../securities/jwt.security.js'
 import { uploadImage } from '../utils/github.util.js'
 import { ROLE } from '../enums/role.enum.js'
+import mongoose from 'mongoose'
 
 export const getUserById = async (req, res, id) => {
     try {
@@ -123,13 +124,18 @@ export const findUser = async (req, res) => {
         const { search } = req.query
 
         // Assuming you have a Student model
-        const students = await User.find({
+        const searchQuery = {
             $or: [
-                { username: { $regex: search, $options: 'i' } },
-                { email: { $regex: search, $options: 'i' } },
-                { _id: search }
-            ]
-        })
+                { username: { $regex: search, $options: 'i' } }, // Tìm theo username
+                { email: { $regex: search, $options: 'i' } },    // Tìm theo email
+            ],
+        };
+
+        // Nếu search là một ObjectId hợp lệ, thêm điều kiện tìm kiếm theo _id
+        if (mongoose.Types.ObjectId.isValid(search)) {
+            searchQuery.$or.push({ _id: search });
+        }
+        const students = await User.find(searchQuery)
 
         const transformedStudents = students.map((student) => student.transform())
 
