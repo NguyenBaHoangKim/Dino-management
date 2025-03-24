@@ -118,21 +118,6 @@ export const createComment = async (req, res) => {
     }
 }
 
-export const getAllComments = async (req, res) => {
-    try {
-        const comments = await Comment.find()
-
-        return res.status(httpStatus.OK).json({
-            data: comments,
-            message: 'Lấy Comment thành công',
-        })
-    } catch (error) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            message: error.message || 'Không thể lấy Comment',
-        })
-    }
-}
-
 export const getCommentsByCommentableId = async (req, res) => {
     try {
         const { commentableId } = req.params
@@ -195,6 +180,20 @@ export const getCommentsByCommentableId = async (req, res) => {
     }
 }
 
+export const getAllComments = async (req, res) => {
+    try {
+        const comments = await Comment.find()
+
+        return res.status(httpStatus.OK).json({
+            data: comments,
+            message: 'Lấy Comment thành công',
+        })
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: error.message || 'Không thể lấy Comment',
+        })
+    }
+}
 export const getCommentByCommentableIdBySubComment = async (req, res) => {
     try {
         const { commentableId } = req.params
@@ -253,7 +252,6 @@ export const getCommentByCommentableIdBySubComment = async (req, res) => {
         })
     }
 }
-
 export const getCommentById = async (req, res) => {
     try {
         const { commentId } = req.params
@@ -275,7 +273,6 @@ export const getCommentById = async (req, res) => {
         })
     }
 }
-
 export const editComment = async (req, res) => {
     try {
         const { commentId } = req.params

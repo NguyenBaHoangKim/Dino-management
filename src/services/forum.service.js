@@ -43,15 +43,21 @@ export const createForum = async (req, res) => {
 export const editForum = async (req, res) => {
     try {
         const forumId = req.params.forumId
-        const { title, description } = req.body
-        const imageUrl = await uploadImage(req, res, 'forum')
+        const { title, description, image } = req.body
+
+        let imageUrl = ""
+        let newImages = false
+        if (req.file) {
+            imageUrl = await uploadImage(req, res, 'forum')
+            newImages = true
+        }
 
         const updatedForum = await Forum.findByIdAndUpdate(
             forumId,
             {
                 title,
                 description,
-                images: imageUrl,
+                images: newImages ? imageUrl : image,
             },
             { new: true },
         )

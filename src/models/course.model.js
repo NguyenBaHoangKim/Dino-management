@@ -32,6 +32,10 @@ const courseSchema = new mongoose.Schema(
             trim: true,
             maxlength: 200,
         },
+        teacher_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        },
         course_type: {
             type: String,
             enum: COURSE_TYPE,

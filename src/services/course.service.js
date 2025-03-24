@@ -6,12 +6,12 @@ import { PAGE, PER_PAGE } from '#constants/index'
 import { FAVOURITE_TYPE } from '../enums/favouriteType.enum.js'
 import Favorite from '../models/favorite.model.js'
 import CourseMember from '../models/courseMember.model.js'
+import User from '#models/user'
 
 export const createCourse = async (req, res) => {
     try {
-        const { title, description, startDate, endDate, certification } =
+        const { title, description, startDate, endDate, certification, teacherId } =
             req.body
-        console.log(title, description, startDate, endDate, certification)
 
         const imageUrl = req.file ? await uploadImage(req, res, 'courses') : []
         const newCourse = new Course({
@@ -21,6 +21,7 @@ export const createCourse = async (req, res) => {
             end_date: endDate,
             images: imageUrl,
             certification: certification,
+            teacherId: teacherId
         })
 
         const savedCourse = await newCourse.save()
@@ -39,10 +40,15 @@ export const createCourse = async (req, res) => {
 export const editCourse = async (req, res) => {
     try {
         const courseId = req.params.courseId
-        const { title, description, startDate, endDate, certification } =
+        const { title, description, startDate, endDate, certification, teacherId, image } =
             req.body
-        const imageUrl = await uploadImage(req, res, 'courses')
 
+        let imageUrl = ""
+        let newImages = false
+        if (req.file) {
+            imageUrl = await uploadImage(req, res, 'courses')
+            newImages = true
+        }
         const updatedCourse = await Course.findByIdAndUpdate(
             courseId,
             {
@@ -50,8 +56,9 @@ export const editCourse = async (req, res) => {
                 description: description,
                 start_date: startDate,
                 end_date: endDate,
-                images: imageUrl,
+                images: newImages ? imageUrl : image,
                 certification: certification,
+                teacher_id: teacherId,
             },
             { new: true },
         )
@@ -168,7 +175,7 @@ export const getCourseForMember = async (req, res) => {
 
         return res.status(httpStatus.OK).json({
             data: courseIds,
-            message: 'Lấy course thành công',
+            message: 'Lấy course cho hv thành công',
         })
     } catch (e) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -189,11 +196,29 @@ export const getMemberInCourse = async (req, res) => {
         //     })
         // }
 
-        const memberIds = members.map(member => member.user_id.transformUserInformation())
+        const memberIds = members.map(member => member.user_id.transform())
 
         return res.status(httpStatus.OK).json({
             data: memberIds,
             message: 'Lấy học viên thành công',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Không tìm thấy course',
+        })
+    }
+}
+
+export const getCourseForTeacher = async (req, res) => {
+    try {
+        const { userId } = req.params
+        const courses = await Course.find({ teacher_id: userId })
+
+        //const courseIds = courses.map(course => course._id)
+
+        return res.status(httpStatus.OK).json({
+            data: courses,
+            message: 'Lấy course cho gv thành công',
         })
     } catch (e) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -425,3 +450,27 @@ export const likeCourse = async (req, res) => {
     }
 }
 
+//find student using name or email or id
+export const findStudent = async (req, res) => {
+    try {
+        const { search } = req.query
+
+        // Assuming you have a Student model
+        const students = await User.find({
+            $or: [
+                { username: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } },
+                { _id: search }
+            ]
+        })
+
+        return res.status(httpStatus.OK).json({
+            data: students,
+            message: 'Find students successfully',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Failed to find student',
+        })
+    }
+}

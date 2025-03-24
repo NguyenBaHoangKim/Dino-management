@@ -30,6 +30,10 @@ router
     .get(courseController.getCourseForMember)
 
 router
+    .route('/teacher/:userId')
+    .get(courseController.getCourseForTeacher)
+
+router
     .route('/member/list-member/:courseId')
     .get(courseController.getMemberInCourse)
 
@@ -40,6 +44,10 @@ router
 router
     .route('/remove-student')
     .post(courseController.removeStudentFromCourse)
+
+router
+    .route('/find-student')
+    .get(courseController.findStudent)
 
 router
     .route('/:courseId')

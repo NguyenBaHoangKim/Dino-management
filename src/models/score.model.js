@@ -9,6 +9,11 @@ const scoreSchema = new mongoose.Schema(
             ref: 'User',
             required: true,
         },
+        course_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Course',
+            required: true,
+        },
         exercise_id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Exercise',
