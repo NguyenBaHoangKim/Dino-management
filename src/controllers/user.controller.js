@@ -21,6 +21,10 @@ export const editUser = async (req, res) => {
     await userService.editUser(req, res)
 }
 
+export const findUser = async (req, res) => {
+    await userService.findUser(req, res)
+}
+
 export const changeUserRole = async (req, res) => {
     await userService.changeUserRole(req, res)
 }

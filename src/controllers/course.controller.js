@@ -51,7 +51,3 @@ export const getMemberInCourse = async (req, res) => {
 export const getCourseForTeacher = async (req, res) => {
     await courseService.getCourseForTeacher(req, res)
 }
-
-export const findStudent = async (req, res) => {
-    await courseService.findStudent(req, res)
-}

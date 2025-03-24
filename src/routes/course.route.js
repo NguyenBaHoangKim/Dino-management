@@ -46,14 +46,10 @@ router
     .post(courseController.removeStudentFromCourse)
 
 router
-    .route('/find-student')
-    .get(courseController.findStudent)
-
-router
     .route('/:courseId')
     .get(courseController.getCourseById)
-    .put(authorize(), validate, upload.single('file'), courseController.editCourse)
-    .delete(authorize(), courseController.deleteCourse)
+    .put(upload.single('file'), courseController.editCourse)
+    .delete(courseController.deleteCourse)
 
 
 export default router

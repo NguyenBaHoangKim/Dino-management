@@ -24,6 +24,10 @@ router
     .get(userController.getAllUsers)
 
 router
+    .route('/find')
+    .get(userController.findUser)
+
+router
     .route('/reset-password')
     .post(validate, authorize(), userController.sendPasswordReset)
 

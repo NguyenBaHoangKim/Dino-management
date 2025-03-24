@@ -116,3 +116,30 @@ export const changeUserRole = async (req, res) => {
         })
     }
 }
+
+//find student using name or email or id
+export const findUser = async (req, res) => {
+    try {
+        const { search } = req.query
+
+        // Assuming you have a Student model
+        const students = await User.find({
+            $or: [
+                { username: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } },
+                { _id: search }
+            ]
+        })
+
+        const transformedStudents = students.map((student) => student.transform())
+
+        return res.status(httpStatus.OK).json({
+            data: transformedStudents,
+            message: 'Find students successfully',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Failed to find student',
+        })
+    }
+}
