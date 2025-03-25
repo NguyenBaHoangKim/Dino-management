@@ -2,16 +2,19 @@ import Question from '../models/question.model.js'
 import httpStatus from 'http-status'
 import Answer from '../models/answer.model.js'
 import { uploadImage } from '../utils/github.util.js'
+import Exercise from '../models/exercise.model.js'
 
 export const createQuiz = async (req, res) => {
     try {
-        const { exercise_id, lesson_id, question, answers, correct_answer, index, type } = req.body
+        const { exercise_id, question, answers, correct_answer, index, type } = req.body
 
         const imageUrl = req.file ? await uploadImage(req, res, 'quiz') : ''
+
+        const exercise = await Exercise.findById(exercise_id)
         // Create a new question
         const newQuestion = new Question({
             index: index,
-            lesson_id: lesson_id,
+            lesson_id: exercise.lesson_id,
             exercise_id: exercise_id,
             question: question,
             answers: answers,

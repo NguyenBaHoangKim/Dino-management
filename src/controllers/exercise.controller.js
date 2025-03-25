@@ -27,3 +27,7 @@ export const removeExerciseResultUser = async (req, res) => {
 export const getExerciseByLessonIdForStudent = async (req, res) => {
     await exerciseService.getExerciseByLessonIdForStudent(req, res)
 }
+
+export const getExerciseByLessonIdForTeacher = async (req, res) => {
+    await exerciseService.getExerciseByLessonIdForTeacher(req, res)
+}

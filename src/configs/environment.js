@@ -12,7 +12,6 @@ const appPath = path.resolve(__dirname, '..', '..')
 
 // Calculate the path to openapi.yaml from the root directory
 const openApiPath = path.join(appPath, 'openapi.yaml')
-console.log('OpenAPI Path:', openApiPath)
 
 const env = cleanEnv(process.env, {
     NODE_ENV: str({

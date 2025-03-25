@@ -11,6 +11,12 @@ router
     .get(lessonController.getListLessons)
 
 router
+    .route('/:lessonId')
+    .get(lessonController.getLessonById)
+    .put(upload.single('images'), lessonController.editLesson)
+    .delete(authorize(), lessonController.deleteLesson)
+
+router
     .route('/status/:lessonId')
     .patch(authorize(), lessonController.changeLessonStatus)
 
@@ -18,11 +24,5 @@ router
     .route('/course/:courseId')
     .post(authorize(), upload.single('images'), lessonController.createLessonByCourseId)
     .get(lessonController.getLessonsByCourseId)
-
-router
-    .route('/:lessonId')
-    .get(lessonController.getLessonById)
-    .put(upload.single('images'), lessonController.editLesson)
-    .delete(authorize(), lessonController.deleteLesson)
 
 export default router

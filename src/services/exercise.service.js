@@ -31,7 +31,7 @@ export const createExercise = async (req, res) => {
 // Get an exercise by ID
 export const getExerciseById = async (req, res) => {
     try {
-        const exerciseId = req.params
+        const exerciseId = req.params.exerciseId
         const exercise = await Exercise.findById(exerciseId)
 
         if (!exercise) {
@@ -165,18 +165,52 @@ export const getExerciseByLessonIdForStudent = async (req, res) => {
             })
         }
 
-        for (let i = 0; i < exercises.length; i++) {
-            const score = await Score.findOne({ user_id: userId, exercise_id: exercises[i]._id })
-            if (score) {
-                exercises[i].score = score.score
-            }
+        const exercisesWithScores = await Promise.all(
+            exercises.map(async (exercise) => {
+                const score = await Score.findOne({ user_id: userId, exercise_id: exercise._id });
+                return {
+                    ...exercise.toObject(),
+                    score: score ? score.score : null,
+                };
+            })
+        );
+
+        return res.status(httpStatus.OK).json({
+            data: exercisesWithScores,
+            message: 'Lấy bài tập theo lesson thành công',
+        });
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Lấy bài tập theo lesson thất bại',
+        })
+    }
+}
+
+export const getExerciseByLessonIdForTeacher = async (req, res) => {
+    try {
+        const { lessonId, userId } = req.params
+        const exercises = await Exercise.find({ lesson_id: lessonId })
+
+        if (!exercises) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'Không tìm thấy bài tập',
+            })
         }
 
+        // const exercisesWithScores = await Promise.all(
+        //     exercises.map(async (exercise) => {
+        //         const score = await Score.findOne({ user_id: userId, exercise_id: exercise._id });
+        //         return {
+        //             ...exercise.toObject(),
+        //             score: score ? score.score : null,
+        //         };
+        //     })
+        // );
 
         return res.status(httpStatus.OK).json({
             data: exercises,
             message: 'Lấy bài tập theo lesson thành công',
-        })
+        });
     } catch (e) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
             message: e.message || 'Lấy bài tập theo lesson thất bại',

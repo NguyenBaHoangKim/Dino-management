@@ -22,4 +22,8 @@ router
     .route('/exercise/:lessonId/:userId')
     .get(exerciseController.getExerciseByLessonIdForStudent)
 
+router
+    .route('/exercise/teacher/:lessonId')
+    .get(exerciseController.getExerciseByLessonIdForTeacher)
+
 export default router

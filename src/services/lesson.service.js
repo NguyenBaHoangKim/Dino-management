@@ -37,7 +37,7 @@ export const createLessonByCourseId = async (req, res) => {
 
 export const editLesson = async (req, res) => {
     try {
-        const lessonId = req.params
+        const lessonId = req.params.lessonId
         let { title, description, videoUrl, images, body, status, isDeleteImg } = req.body
 
         let imageUrl = ""
