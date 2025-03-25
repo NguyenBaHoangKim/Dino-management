@@ -19,11 +19,11 @@ router
     .delete(exerciseController.deleteExercise)
 
 router
-    .route('/exercise/:lessonId/:userId')
-    .get(exerciseController.getExerciseByLessonIdForStudent)
+    .route('/teacher/:lessonId')
+    .get(exerciseController.getExerciseByLessonIdForTeacher)
 
 router
-    .route('/exercise/teacher/:lessonId')
-    .get(exerciseController.getExerciseByLessonIdForTeacher)
+    .route('/lesson/:lessonId/user/:userId')
+    .get(exerciseController.getExerciseByLessonIdForStudent)
 
 export default router
