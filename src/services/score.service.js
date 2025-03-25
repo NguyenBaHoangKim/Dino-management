@@ -7,6 +7,13 @@ export const createScore = async (req, res) => {
     try {
         const { userId, exerciseId, score } = req.body
 
+        const checkExistScore = await Score.findOne({user_id: userId, exercise_id: exerciseId})
+        if (checkExistScore) {
+            return res.status(httpStatus.BAD_REQUEST).json({
+                message: 'Điểm số đã tồn tại',
+            })
+        }
+
         const exercise = await Exercise.findById(exerciseId)
         const lesson = await Lesson.findById(exercise.lesson_id)
 

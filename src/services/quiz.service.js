@@ -205,7 +205,7 @@ export const answerQuiz = async (req, res) => {
         } else {
             isCorrect = Array.isArray(answer) && Array.isArray(question.correct_answer) &&
                 answer.length === question.correct_answer.length &&
-                answer.every((val, index) => val === question.correct_answer[index])
+                answer.sort().every((val, index) => val === question.correct_answer.sort()[index])
         }
 
         // Create a new answer

@@ -3,6 +3,8 @@ import Lesson from '#models/lesson'
 import { uploadImage } from '#utils/github'
 import httpStatus from 'http-status'
 import Exercise from '../models/exercise.model.js'
+import CourseMember from '../models/courseMember.model.js'
+import Score from '../models/score.model.js'
 
 export const createLessonByCourseId = async (req, res) => {
     try {
@@ -210,3 +212,39 @@ export const getLessonsByCourseId = async (req, res) => {
         })
     }
 }
+
+// export const getListExerciseAndProcessByLessonIdForTeacher = async (req, res) => {
+//     try {
+//         const { lessonId } = req.params
+//
+//         const lesson = await Lesson.findById(lessonId)
+//         const exercises = await Exercise.find({ lesson_id: lessonId })
+//
+//         if (!exercises) {
+//             return res.status(httpStatus.NOT_FOUND).json({
+//                 message: 'Không tìm thấy bài tập',
+//             })
+//         }
+//
+//         const userInCourse = await CourseMember.countDocuments({ course_id: lesson.course_id })
+//
+//         const exercisesWithProcess = await Promise.all(
+//             exercises.map(async (exercise) => {
+//                 const userSubmit = await Score.countDocuments({ exercises: exercise._id })
+//                 return {
+//                     ...exercise.toObject(),
+//                     process: Math.round(userSubmit / userInCourse * 100),
+//                 };
+//             })
+//         );
+//
+//         return res.status(httpStatus.OK).json({
+//             data: exercisesWithProcess,
+//             message: 'Lấy bài tập theo lesson thành công',
+//         });
+//     } catch (e) {
+//         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+//             message: e.message || 'Lấy bài tập theo lesson thất bại',
+//         })
+//     }
+// }

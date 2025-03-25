@@ -3,6 +3,8 @@ import httpStatus from 'http-status'
 import Score from '../models/score.model.js'
 import Answer from '../models/answer.model.js'
 import { PAGE, PER_PAGE } from '#constants/index'
+import Lesson from '../models/lesson.model.js'
+import CourseMember from '../models/courseMember.model.js'
 
 // Create a new exercise
 export const createExercise = async (req, res) => {
@@ -188,7 +190,9 @@ export const getExerciseByLessonIdForStudent = async (req, res) => {
 
 export const getExerciseByLessonIdForTeacher = async (req, res) => {
     try {
-        const { lessonId, userId } = req.params
+        const { lessonId } = req.params
+
+        const lesson = await Lesson.findById(lessonId)
         const exercises = await Exercise.find({ lesson_id: lessonId })
 
         if (!exercises) {
@@ -197,18 +201,20 @@ export const getExerciseByLessonIdForTeacher = async (req, res) => {
             })
         }
 
-        // const exercisesWithScores = await Promise.all(
-        //     exercises.map(async (exercise) => {
-        //         const score = await Score.findOne({ user_id: userId, exercise_id: exercise._id });
-        //         return {
-        //             ...exercise.toObject(),
-        //             score: score ? score.score : null,
-        //         };
-        //     })
-        // );
+        const userInCourse = await CourseMember.countDocuments({ course_id: lesson.course_id })
+
+        const exercisesWithProcess = await Promise.all(
+            exercises.map(async (exercise) => {
+                const userSubmit = await Score.countDocuments({ exercises: exercise._id })
+                return {
+                    ...exercise.toObject(),
+                    process: Math.round(userSubmit / userInCourse * 100),
+                };
+            })
+        );
 
         return res.status(httpStatus.OK).json({
-            data: exercises,
+            data: exercisesWithProcess,
             message: 'Lấy bài tập theo lesson thành công',
         });
     } catch (e) {
