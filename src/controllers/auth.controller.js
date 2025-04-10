@@ -19,3 +19,7 @@ export const refreshToken = async (req, res) => {
 export const changePassword = async (req, res) => {
     await authService.changePassword(req, res)
 }
+
+export const resetPassword = async (req, res) => {
+    await authService.resetPassword(req, res)
+}

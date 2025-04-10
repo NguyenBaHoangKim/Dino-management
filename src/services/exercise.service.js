@@ -205,10 +205,12 @@ export const getExerciseByLessonIdForTeacher = async (req, res) => {
 
         const exercisesWithProcess = await Promise.all(
             exercises.map(async (exercise) => {
-                const userSubmit = await Score.countDocuments({ exercises: exercise._id })
+                const userSubmit = await Score.countDocuments({ exercise_id: exercise._id })
                 return {
                     ...exercise.toObject(),
-                    process: Math.round(userSubmit / userInCourse * 100),
+                    userSubmited: userSubmit,
+                    userInCourse: userInCourse,
+                    process: Math.ceil((userSubmit / userInCourse) * 100 * 100) / 100,
                 };
             })
         );

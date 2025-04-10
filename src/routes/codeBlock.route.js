@@ -11,4 +11,8 @@ router
     .route('/lastest')
     .get(codeBlockController.getLatestCode)
 
+router
+    .route('/push')
+    .post(codeBlockController.postCode)
+
 export default router

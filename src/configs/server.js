@@ -42,6 +42,7 @@ app.use(helmet())
 app.use(pino({ logger }))
 app.use(cookieParser())
 app.use(authConfig)
+app.use(express.json())
 
 //app.use('/docs', ...openApiMiddleware)
 app.use('/api', routes)

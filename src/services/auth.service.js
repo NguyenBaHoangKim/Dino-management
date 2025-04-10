@@ -14,7 +14,9 @@ import { generatePasswordResetToken } from '#utils/token'
 import * as emailService from '#services/email/email'
 import Session from '#models/session'
 import { getSocketInstance } from '#configs/socket'
+import bcrypt from 'bcryptjs'
 
+const { env } = config
 const { jwtSecret } = config.auth
 
 export const login = async (req, res) => {
@@ -242,3 +244,28 @@ export const oAuth = async (req, res) => {
     })
 }
 
+export const resetPassword = async (req, res) => {
+    try {
+        const { userId } = req.params
+        const rounds = env === 'test' ? 1 : 10
+        const newPassword = await bcrypt.hash('123456', rounds)
+        const user = await User.findByIdAndUpdate(userId, {
+            password: newPassword
+        })
+
+        if (!user) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'Không tìm thấy người dùng',
+            })
+        }
+
+        return res.status(httpStatus.OK).json({
+            data: user,
+            message: 'Thay đổi mật khẩu thành công',
+        })
+    } catch (e) {
+        return res.status(e.status || httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Không thể thay đổi mật khẩu',
+        })
+    }
+}

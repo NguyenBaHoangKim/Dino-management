@@ -25,6 +25,9 @@ router
     .route('/change-password')
     .post(authController.changePassword)
 
+router
+    .route('/reset-password/:userId')
+    .post(authController.resetPassword) //add authorize()
 
 // router //
 //     .route('/google')
