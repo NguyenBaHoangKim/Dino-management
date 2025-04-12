@@ -30,6 +30,8 @@ pids
 #uploadfile
 uploads/
 
+tmp_sketch
+
 data
 
 .vercel

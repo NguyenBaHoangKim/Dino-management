@@ -44,7 +44,7 @@ router
 router
     .route('/:projectId')
     .get(projectController.getProjectById)
-    .put(authorize(), upload.single('images'), projectController.editProject)
+    .put(upload.single('images'), projectController.editProject)
     .delete(authorize(), projectController.deleteProject)
 
 router

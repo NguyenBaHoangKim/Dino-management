@@ -70,8 +70,11 @@ export const postCode = async (req, res) => {
         console.log('Executing command:', cmd)
 
         // Execute the command
-        const { stdout, stderr } = await execSync(cmd)
-
+        const { stdout, stderr } = await execAsync(cmd) //lan dau tien thi thoang no chua xoa duoc
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            console.log('Đã xóa file tạm:', filePath);
+        }
         // Return success response
         return res.status(httpStatus.OK).json({
             success: true,
