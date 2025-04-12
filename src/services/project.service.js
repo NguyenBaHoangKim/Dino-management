@@ -133,15 +133,21 @@ export const deleteProject = async (req, res) => {
 
 export const getProjectsPerPage = async (req, res) => {
     try {
-        let { page, perPage } = req.query
+        let { page, perPage, name } = req.query
         if (!page || !perPage) {
             page = PAGE
             perPage = PER_PAGE
         }
         const skip = (page - 1) * perPage
         const limit = parseInt(perPage, 10)
-        const projects = await Project.find().skip(skip).limit(limit).populate('user_id')
-        const totalProjects = await Project.countDocuments()
+
+        // Build the search query
+        const searchQuery = name
+            ? { name: { $regex: name, $options: 'i' } } // Case-insensitive search by name
+            : {}
+
+        const projects = await Project.find(searchQuery).skip(skip).limit(limit).populate('user_id')
+        const totalProjects = await Project.countDocuments(searchQuery)
 
         projects.forEach((project) => {
             if (project.user_id) {
@@ -415,3 +421,6 @@ export const getProjectsByType = async (req, res) => {
         })
     }
 }
+
+//search project and pagination
+
