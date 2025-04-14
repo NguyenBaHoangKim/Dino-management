@@ -425,3 +425,24 @@ export const getRepostByUserId = async (req, res) => {
         })
     }
 }
+
+export const getListUserLikedForum = async (req, res) => {
+    try {
+        const { forumId } = req.params
+        const likeHistories = await LikeHistory.find({
+            liketable_id: forumId,
+            liketable_type: LIKE_TYPE.FORUM,
+        }).populate('user_id')
+
+        const users = likeHistories.map((likeHistory) => likeHistory.user_id.transform())
+
+        return res.status(httpStatus.OK).json({
+            data: users,
+            message: 'Lấy danh sách người dùng đã thích forum thành công',
+        })
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: error.message || 'Failed to get list user liked forum',
+        })
+    }
+}

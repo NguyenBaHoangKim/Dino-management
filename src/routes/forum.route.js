@@ -33,6 +33,10 @@ router
     .post(forumController.isLikedForum)
 
 router
+    .route('/user-liked/:forumId')
+    .get(forumController.getListUserLikedForum)
+
+router
     .route('/repost')
     .post(forumController.reportForum)
 

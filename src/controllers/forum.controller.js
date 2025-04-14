@@ -47,3 +47,7 @@ export const reportForum = async (req, res) => {
 export const getRepostForumByUserId = async (req, res) => {
     await forumService.getRepostByUserId(req, res)
 }
+
+export const getListUserLikedForum = async (req, res) => {
+    await forumService.getListUserLikedForum(req, res)
+}

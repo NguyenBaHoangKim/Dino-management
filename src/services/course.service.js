@@ -7,6 +7,7 @@ import { FAVOURITE_TYPE } from '../enums/favouriteType.enum.js'
 import Favorite from '../models/favorite.model.js'
 import CourseMember from '../models/courseMember.model.js'
 import User from '#models/user'
+import Exercise from '../models/exercise.model.js'
 
 export const createCourse = async (req, res) => {
     try {
@@ -21,7 +22,7 @@ export const createCourse = async (req, res) => {
             end_date: endDate,
             images: imageUrl,
             certification: certification,
-            teacherId: teacherId
+            teacher_id: teacherId
         })
 
         const savedCourse = await newCourse.save()
@@ -455,3 +456,70 @@ export const likeCourse = async (req, res) => {
     }
 }
 
+export const cloneCourse = async (req, res) => {
+    try {
+        const { courseId, title, description, start_date, end_date, certification } = req.body
+
+        const course = await Course.findById(courseId)
+
+        if (!course) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'Course not found',
+            })
+        }
+
+        let imageUrl
+
+        if (req.file) {
+            imageUrl = await uploadImage(req, res, 'courses')
+        }
+
+        if (!course) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'Course not found',
+            })
+        }
+
+        const newCourse = new Course({
+            title: title || course.title,
+            description: description || course.description,
+            start_date: start_date || course.start_date,
+            end_date: end_date || course.end_date,
+            images: imageUrl || course.images,
+            certification: certification || course.certification,
+            teacher_id: course.teacher_id,
+        })
+        const savedCourse = await newCourse.save()
+
+        // Clone lessons
+        const lessons = await Lessson.find({ course_id: courseId })
+        for (const lesson of lessons) {
+            const newLesson = new Lessson({
+                ...lesson.toObject(),
+                _id: undefined,
+                course_id: savedCourse._id,
+            })
+            await newLesson.save()
+
+            // Clone exercises
+            const exercises = await Exercise.find({ lesson_id: lesson._id })
+            for (const exercise of exercises) {
+                const newExercise = new Exercise({
+                    ...exercise.toObject(),
+                    _id: undefined,
+                    lesson_id: newLesson._id,
+                })
+                await newExercise.save()
+            }
+        }
+
+        return res.status(httpStatus.CREATED).json({
+            data: savedCourse,
+            message: 'Course cloned successfully',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Failed to clone course',
+        })
+    }
+}

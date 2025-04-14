@@ -8,7 +8,7 @@ const router = express.Router()
 
 router
     .route('/')
-    .post(authorize(), upload.single('file'), courseController.createCourse)
+    .post(upload.single('file'), courseController.createCourse)
     .get(courseController.getListCoursePerPage)
 
 router
@@ -40,6 +40,10 @@ router
 router
     .route('/add-student')
     .post(courseController.addStudentToCourse)
+
+router
+    .route('/clone-course')
+    .post(courseController.cloneCourse)
 
 router
     .route('/remove-student')

@@ -51,3 +51,7 @@ export const getMemberInCourse = async (req, res) => {
 export const getCourseForTeacher = async (req, res) => {
     await courseService.getCourseForTeacher(req, res)
 }
+
+export const cloneCourse = async (req, res) => {
+    await courseService.cloneCourse(req, res)
+}

@@ -22,6 +22,7 @@ export const createComment = async (req, res) => {
         }
 
         let newComment
+        let message = 'Tạo Comment thành công'
         if (parentId) {
             newComment = new SubComment({
                 content: content,
@@ -30,6 +31,7 @@ export const createComment = async (req, res) => {
                 commentable_type: commentableType,
                 parent_id: parentId,
             })
+            message = 'Tạo SubComment thành công'
         } else {
             newComment = new Comment({
                 content: content,
@@ -109,7 +111,7 @@ export const createComment = async (req, res) => {
 
         return res.status(httpStatus.CREATED).json({
             data: savedComment,
-            message: 'Tạo Comment thành công',
+            message: message,
         })
     } catch (error) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -118,6 +120,7 @@ export const createComment = async (req, res) => {
     }
 }
 
+//dang dung cai nay
 export const getCommentsByCommentableId = async (req, res) => {
     try {
         const { commentableId } = req.params
@@ -194,6 +197,8 @@ export const getAllComments = async (req, res) => {
         })
     }
 }
+
+//cai cu k dung nua
 export const getCommentByCommentableIdBySubComment = async (req, res) => {
     try {
         const { commentableId } = req.params
@@ -241,7 +246,7 @@ export const getCommentByCommentableIdBySubComment = async (req, res) => {
             }))
 
         return res.status(httpStatus.OK).json({
-            data: structuredComments,
+            data: comments,
             page: page,
             totalPages: perPage === -1 ? 1 : Math.ceil(structuredComments.length / perPage),
             message: 'Lấy Comment cùng sub-Comment thành công',

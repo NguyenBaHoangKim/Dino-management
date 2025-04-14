@@ -18,7 +18,7 @@ router
     .route('/commentable/:commentableId')
     .get(commentController.getCommentsByCommentableId)
 
-router
+router // cai cu k dung nua
     .route('/all-comments/:commentableId')
     .get(commentController.getAllCommentBySubComment)
 

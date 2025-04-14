@@ -32,7 +32,7 @@ const lessonSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: LESSON_STATUS,
+            // enum: LESSON_STATUS,
             default: LESSON_STATUS.DRAFT,
         },
         course_id: {
