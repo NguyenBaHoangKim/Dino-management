@@ -4,6 +4,7 @@ import { getUserByToken } from '../securities/jwt.security.js'
 import { uploadImage } from '../utils/github.util.js'
 import { ROLE } from '../enums/role.enum.js'
 import mongoose from 'mongoose'
+import { PAGE, PER_PAGE } from '#constants/index'
 
 export const getUserById = async (req, res, id) => {
     try {
@@ -122,6 +123,16 @@ export const changeUserRole = async (req, res) => {
 export const findUser = async (req, res) => {
     try {
         const { search } = req.query
+        let { page, perPage } = req.query
+        if (!page || !perPage) {
+            page = PAGE
+            perPage = PER_PAGE
+        }
+
+        page = parseInt(page, 10)
+        perPage = parseInt(perPage, 10)
+        const skip = (page - 1) * perPage
+        const limit = perPage
 
         // Assuming you have a Student model
         const searchQuery = {
@@ -136,11 +147,16 @@ export const findUser = async (req, res) => {
             searchQuery.$or.push({ _id: search });
         }
         const students = await User.find(searchQuery)
+            .skip(skip)
+            .limit(limit)
 
+        const totalStudents = await User.countDocuments(searchQuery)
         const transformedStudents = students.map((student) => student.transform())
 
         return res.status(httpStatus.OK).json({
             data: transformedStudents,
+            page: page,
+            total: totalStudents,
             message: 'Find students successfully',
         })
     } catch (e) {

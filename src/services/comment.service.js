@@ -219,7 +219,7 @@ export const getNguyenComment = async (req, res) => {
                     countSubComment: countSubComment,
                     isLiked: !!likeHistory, // true if likeHistory exists, false otherwise
                 }
-            })
+            }),
         )
 
         return res.status(httpStatus.OK).json({
@@ -266,7 +266,7 @@ export const getNguyenSubComment = async (req, res) => {
                     ...subComment.toObject(),
                     isLiked: !!likeHistory, // true if likeHistory exists, false otherwise
                 }
-            })
+            }),
         )
 
         return res.status(httpStatus.OK).json({
@@ -408,19 +408,14 @@ export const editComment = async (req, res) => {
 export const deleteComment = async (req, res) => {
     try {
         const { commentId } = req.params
-        const deletedComment = await Comment.findById(commentId)
+        const deletedComment = await Comment.findByIdAndDelete(commentId)
+        const deletedSubComment = await SubComment.findByIdAndDelete(commentId)
 
-        if (!deletedComment) {
+        if (!deletedComment && !deletedSubComment) {
             return res.status(httpStatus.NOT_FOUND).json({
                 message: 'Không tìm thấy Comment',
             })
         }
-
-        // Check if it is a parent comment
-        if (!deletedComment.parent_id) {
-            await Comment.deleteMany({ parent_id: commentId })
-        }
-        await Comment.findByIdAndDelete(commentId)
 
         return res.status(httpStatus.OK).json({
             message: 'Xóa Comment thành công',
