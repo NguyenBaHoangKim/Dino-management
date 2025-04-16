@@ -10,14 +10,28 @@ router
     .post(scoreController.createScore)
     .get(scoreController.getScore)
 
-//getListAverageScoreInExercise
 router
-    .route('/average-course/:courseId')
-    .get(scoreController.getListAverageScoreInCourse)
+    .route('/:scoreId')
+    .put(scoreController.editScore)
+    .delete(scoreController.deleteScore)
+
+
+// router
+//     .route('/average-course/:courseId')
+//     .get(scoreController.getListAverageScoreInCourse)
+
+router
+    .route('/exercise/:exerciseId')
+    .get(scoreController.getScoreByExerciseId)
+
+router
+    .route('/course/:courseId')
+    .get(scoreController.getAllScoreInCourse)
 
 router
     .route('/:userId/:lessonId')
     .get(scoreController.getScoreByUserIdAndLessonId)
+
 
 
 export default router

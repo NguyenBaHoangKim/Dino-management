@@ -123,15 +123,17 @@ export const createComment = async (req, res) => {
 //dang dung cai nay
 export const getCommentsByCommentableId = async (req, res) => {
     try {
-        const { commentableId } = req.params
+        const { commentableId, userId } = req.params
         let { page, perPage } = req.query
-        if (!page || !perPage) {
-            page = PAGE
-            perPage = PER_PAGE
-        }
+        // if (!page || !perPage) {
+        //     page = PAGE
+        //     perPage = PER_PAGE
+        // }
+        page = page ? parseInt(page, 10) : PAGE
+        perPage = perPage ? parseInt(perPage, 10) : PER_PAGE
 
-        page = parseInt(page, 10)
-        perPage = parseInt(perPage, 10)
+        // page = parseInt(page, 10)
+        // perPage = parseInt(perPage, 10)
 
         const skip = (page - 1) * perPage
         const limit = perPage
@@ -179,6 +181,103 @@ export const getCommentsByCommentableId = async (req, res) => {
     } catch (error) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
             message: error.message || 'Không thể lấy Comment',
+        })
+    }
+}
+
+export const getNguyenComment = async (req, res) => {
+    try {
+        const { commentableId, userId } = req.body
+        let { page, perPage } = req.query
+
+        page = page ? parseInt(page, 10) : PAGE
+        perPage = perPage ? parseInt(perPage, 10) : PER_PAGE
+
+        const skip = (page - 1) * perPage
+        const limit = perPage
+
+        const comments = await Comment.find({ commentable_id: commentableId })
+            .skip(skip)
+            .limit(limit)
+            .populate('user_id', 'username avatar')
+
+        const countComment = await Comment.countDocuments({ commentable_id: commentableId })
+
+        // Add isLiked field to each comment
+        const commentsWithIsLiked = await Promise.all(
+            comments.map(async (comment) => {
+                const likeHistory = await LikeHistory.findOne({
+                    user_id: userId,
+                    liketable_id: comment._id,
+                    liketable_type: LIKE_TYPE.FORUM,
+                })
+
+                const countSubComment = await SubComment.countDocuments({ parent_id: comment._id })
+
+                return {
+                    ...comment.toObject(),
+                    countSubComment: countSubComment,
+                    isLiked: !!likeHistory, // true if likeHistory exists, false otherwise
+                }
+            })
+        )
+
+        return res.status(httpStatus.OK).json({
+            data: commentsWithIsLiked,
+            page: page,
+            totalPages: Math.ceil(countComment / perPage),
+            message: 'Lấy Comment thành công',
+        })
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: error.message || 'Không thể lấy Comment',
+        })
+    }
+}
+
+export const getNguyenSubComment = async (req, res) => {
+    try {
+        const { parentId, userId } = req.body
+        let { page, perPage } = req.query
+
+        page = page ? parseInt(page, 10) : PAGE
+        perPage = perPage ? parseInt(perPage, 10) : PER_PAGE
+
+        const skip = (page - 1) * perPage
+        const limit = perPage
+
+        const subComments = await SubComment.find({ parent_id: parentId })
+            .skip(skip)
+            .limit(limit)
+            .populate('user_id', 'username avatar')
+
+        const countSubComments = await SubComment.countDocuments({ parent_id: parentId })
+
+        // Add isLiked field to each subcomment
+        const subCommentsWithIsLiked = await Promise.all(
+            subComments.map(async (subComment) => {
+                const likeHistory = await LikeHistory.findOne({
+                    user_id: userId,
+                    liketable_id: subComment._id,
+                    liketable_type: LIKE_TYPE.FORUM,
+                })
+
+                return {
+                    ...subComment.toObject(),
+                    isLiked: !!likeHistory, // true if likeHistory exists, false otherwise
+                }
+            })
+        )
+
+        return res.status(httpStatus.OK).json({
+            data: subCommentsWithIsLiked,
+            page: page,
+            totalPages: Math.ceil(countSubComments / perPage),
+            message: 'Lấy SubComment thành công',
+        })
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: error.message || 'Không thể lấy SubComment',
         })
     }
 }

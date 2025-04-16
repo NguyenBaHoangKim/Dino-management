@@ -523,3 +523,25 @@ export const cloneCourse = async (req, res) => {
         })
     }
 }
+
+export const requestToJoinCourse = async (req, res) => {
+    try {
+        const { courseId, userId } = req.body
+
+        const courseMember = new CourseMember({
+            course_id: courseId,
+            user_id: userId,
+            status: 'pending',
+        })
+
+        await courseMember.save()
+
+        return res.status(httpStatus.CREATED).json({
+            message: 'Request to join course sent successfully',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Failed to send request to join course',
+        })
+    }
+}

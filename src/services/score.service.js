@@ -2,6 +2,8 @@ import Score from '#models/score'
 import httpStatus from 'http-status'
 import Exercise from '../models/exercise.model.js'
 import Lesson from '../models/lesson.model.js'
+import Course from '../models/course.model.js'
+import CourseMember from '../models/courseMember.model.js'
 
 export const createScore = async (req, res) => {
     try {
@@ -59,6 +61,56 @@ export const getScore = async (req, res) => {
     }
 }
 
+export const editScore = async (req, res) => {
+    try {
+        const { scoreId } = req.params
+        const { score } = req.body
+
+        const updatedScore = await Score.findByIdAndUpdate(
+            scoreId,
+            { score: score },
+            { new: true }
+        )
+
+        if (!updatedScore) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'Không tìm thấy điểm số',
+            })
+        }
+
+        return res.status(httpStatus.OK).json({
+            data: updatedScore,
+            message: 'Cập nhật điểm số thành công',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Cập nhật điểm số thất bại',
+        })
+    }
+}
+
+export const deleteScore = async (req, res) => {
+    try {
+        const { scoreId } = req.params
+
+        const deletedScore = await Score.findByIdAndDelete(scoreId)
+
+        if (!deletedScore) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'Không tìm thấy điểm số',
+            })
+        }
+
+        return res.status(httpStatus.OK).json({
+            message: 'Xóa điểm số thành công',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Xóa điểm số thất bại',
+        })
+    }
+}
+
 export const getScoreByUserIdAndLessonId = async (req, res) => {
     try {
         const { userId, lessonId } = req.params
@@ -85,21 +137,31 @@ export const getScoreByUserIdAndLessonId = async (req, res) => {
     }
 }
 
-export const getScoreByUserIdAndExerciseId = async (req, res) => {
+export const getScoreByExerciseId = async (req, res) => {
     try {
-        const { userId, exerciseId } = req.params
+        const { exerciseId } = req.params
 
-        const score = await Score.find({
-            user_id: userId,
+        const scores = await Score.find({
             exercise_id: exerciseId,
+        }).populate('user_id', '_id username email avatar')
+
+
+        const exercise = await Exercise.findById(exerciseId)
+        const lesson = await Lesson.findById(exercise.lesson_id)
+        const courseMember = await CourseMember.find({ course_id: lesson.course_id }).populate('user_id')
+
+        const member = courseMember.map((member) => {
+            const userScore = scores.find((score) => score.user_id._id.toString() === member.user_id._id.toString())
+            return {
+                user_id: member.user_id._id,
+                username: member.user_id.username,
+                email: member.user_id.email,
+                score: userScore ? userScore.score : null,
+            }
         })
-        if (!score) {
-            return res.status(httpStatus.NOT_FOUND).json({
-                message: 'Không tìm thấy điểm số',
-            })
-        }
+
         return res.status(httpStatus.OK).json({
-            data: score,
+            data: member,
             message: 'Lấy điểm số thành công',
         })
     }
@@ -110,34 +172,73 @@ export const getScoreByUserIdAndExerciseId = async (req, res) => {
     }
 }
 
-export const getAverageScoreByUserIdInLesson = async (req, res) => {
+export const getAllScoreInCourse = async (req, res) => {
     try {
-        const { userId, lessonId } = req.params
-        const scores = await Score.find({
-            user_id: userId,
-            lesson_id: lessonId,
-        })
-        if (!scores) {
+        const { courseId } = req.params
+
+        // Find the course
+        const course = await Course.findById(courseId)
+        if (!course) {
             return res.status(httpStatus.NOT_FOUND).json({
-                message: 'Không tìm thấy điểm số',
+                message: 'Không tìm thấy khóa học',
             })
         }
-        let sum = 0
-        scores.forEach((score) => {
-            sum += score.score
-        })
-        const average = sum / scores.length
+
+        // Find all lessons in the course
+        const lessons = await Lesson.find({ course_id: courseId })
+        const courseMember = await CourseMember.find({ course_id: courseId }).populate('user_id')
+
+        // Map lessons to include exercises and scores
+        const lessonDetails = await Promise.all(
+            lessons.map(async (lesson) => {
+                const exercises = await Exercise.find({ lesson_id: lesson._id })
+
+                const exerciseDetails = await Promise.all(
+                    exercises.map(async (exercise) => {
+                        const scores = await Score.find({ exercise_id: exercise._id }).populate('user_id', '_id username email avatar')
+
+                        return {
+                            //...exercise.toObject(),
+                            title: exercise.title,
+                            member: courseMember.map((member) => {
+                                const userScore = scores.find((score) => score.user_id._id.toString() === member.user_id._id.toString())
+                                return {
+                                    user_id: member.user_id._id,
+                                    username: member.user_id.username,
+                                    email: member.user_id.email,
+                                    score: userScore ? userScore.score : null,
+                                }
+                            })
+                        }
+                    })
+                )
+
+                return {
+                    //...lesson.toObject(),
+                    title: lesson.title,
+                    exercises: exerciseDetails,
+                }
+            })
+        )
+
+        // Structure the final response
+        const courseDetails = {
+            //...course.toObject(),
+            title: course.title,
+            lessons: lessonDetails,
+        }
+
         return res.status(httpStatus.OK).json({
-            data: average,
-            message: 'Lấy điểm số trung bình thành công',
+            data: courseDetails,
+            message: 'Lấy thông tin khóa học thành công',
         })
-    }
-    catch (e) {
+    } catch (e) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            message: e.message || 'Lấy điểm số trung bình thất bại',
+            message: e.message || 'Lấy thông tin khóa học thất bại',
         })
     }
 }
+
 
 //in exercise have many user so, we need to calculate average score of each user return list of user with average score
 export const getListAverageScoreInCourse = async (req, res) => {

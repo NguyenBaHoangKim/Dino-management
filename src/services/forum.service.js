@@ -7,6 +7,7 @@ import LikeHistory from '../models/likeHistory.model.js'
 import User from '../models/user.model.js'
 import Comment from '../models/comment.model.js'
 import Repost from '../models/repost.model.js'
+import SubComment from '../models/subComment.model.js'
 
 export const createForum = async (req, res) => {
     try {
@@ -180,6 +181,7 @@ export const getListForums = async (req, res) => {
     }
 }
 
+//nay la /userId/ de lay o trang chu
 export const getListForumsBaseOnUserId = async (req, res) => {
     try {
         const { userId } = req.params
@@ -205,7 +207,6 @@ export const getListForumsBaseOnUserId = async (req, res) => {
         // })
 
         const forumsWithCounts = await Promise.all(forums.map(async (forum) => {
-            const commentCount = await Comment.countDocuments({ commentable_id: forum._id, commentable_type: 'FORUM' })
             const repostCount = await Repost.countDocuments({ originalPost: forum._id })
             if (forum.user_id) {
                 forum.user_id = forum.user_id.transformUserInformation()
@@ -225,7 +226,6 @@ export const getListForumsBaseOnUserId = async (req, res) => {
             }
             return {
                 ...forum.toObject(),
-                comment_count: commentCount,
                 repost_count: repostCount,
                 is_liked: is_liked,
                 is_reposted: is_reposted,
@@ -343,7 +343,7 @@ export const getListForumLikedByUserId = async (req, res) => {
         const likedForums = await LikeHistory.find({ user_id: userId, liketable_type: LIKE_TYPE.FORUM })
         const forumIds = likedForums.map(likeHistory => likeHistory.liketable_id)
 
-        const forums = await Forum.find({ _id: { $in: forumIds } })
+        const forums = await Forum.find({ _id: { $in: forumIds } }).populate('user_id', '_id username avatar')
 
         return res.status(httpStatus.OK).json({
             data: forums,
@@ -387,6 +387,8 @@ export const repostAForum = async (req, res) => {
             })
 
             const savedRepost = await newRepost.save()
+            forum.repost_count += 1
+            await forum.save()
 
             return res.status(httpStatus.CREATED).json({
                 data: savedRepost,

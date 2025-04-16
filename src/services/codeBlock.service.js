@@ -90,6 +90,26 @@ export const postCode = async (req, res) => {
     }
 }
 
+export const runCode = async (req, res) => {
+    try {
+        const { code } = req.body
+        console.log('Codeee:', code)
+        const { stdout, stderr } = await execAsync(code)
+
+        return res.status(httpStatus.OK).json({
+            success: true,
+            message: stdout || 'Upload successful!',
+        })
+    } catch (err) {
+        // Handle errors and return failure response
+        console.error('Error during upload:', err)
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: err.stderr || err.message || 'Upload failed.',
+        })
+    }
+}
+
 
 
 // export const createCode = async (req, res) => {

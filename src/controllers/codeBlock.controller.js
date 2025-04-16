@@ -11,3 +11,7 @@ export const getLatestCode = async (req, res) => {
 export const postCode = async (req, res) => {
     await codeService.postCode(req, res)
 }
+
+export const runCode = async (req, res) => {
+    await codeService.runCode(req, res)
+}

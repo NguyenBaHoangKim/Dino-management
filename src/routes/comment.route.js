@@ -15,7 +15,7 @@ router //dang thua
     .post(commentController.createSubComment)
 
 router
-    .route('/commentable/:commentableId')
+    .route('/commentable/:commentableId/user/:userId')
     .get(commentController.getCommentsByCommentableId)
 
 router // cai cu k dung nua
@@ -27,6 +27,14 @@ router
     .put(authorize(), commentController.editComment)
     .get(commentController.getCommentById)
     .delete(commentController.deleteComment)
+
+router
+    .route('/nguyen-comment')
+    .post(commentController.getNguyenComment)
+
+router
+    .route('/nguyen-sub-comment')
+    .post(commentController.getNguyenSubComment)
 
 router
     .route('/like')

@@ -15,4 +15,8 @@ router
     .route('/push')
     .post(codeBlockController.postCode)
 
+router
+    .route('/run')
+    .post(codeBlockController.runCode)
+
 export default router

@@ -35,3 +35,11 @@ export const likeComment = async (req, res) => {
 export const getCommentById = async (req, res) => {
     await commentService.getCommentById(req, res)
 }
+
+export const getNguyenComment = async (req, res) => {
+    await commentService.getNguyenComment(req, res)
+}
+
+export const getNguyenSubComment = async (req, res) => {
+    await commentService.getNguyenSubComment(req, res)
+}
