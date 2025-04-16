@@ -474,12 +474,6 @@ export const cloneCourse = async (req, res) => {
             imageUrl = await uploadImage(req, res, 'courses')
         }
 
-        if (!course) {
-            return res.status(httpStatus.NOT_FOUND).json({
-                message: 'Course not found',
-            })
-        }
-
         const newCourse = new Course({
             title: title || course.title,
             description: description || course.description,

@@ -43,7 +43,7 @@ router
 
 router
     .route('/clone-course')
-    .post(courseController.cloneCourse)
+    .post(upload.single('file'), courseController.cloneCourse)
 
 router
     .route('/remove-student')
