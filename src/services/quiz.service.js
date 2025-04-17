@@ -164,28 +164,6 @@ export const getQuizsByExerciseIdForTeacher = async (req, res) => {
     }
 }
 
-export const getNextQuestion = async (req, res) => {
-    try {
-        const { lessonId, index } = req.body
-        const question = await Question.findOne({ lesson_id: lessonId, index: index })
-
-        if (!question) {
-            return res.status(httpStatus.NOT_FOUND).json({
-                message: 'Không tìm thấy câu hỏi tiếp theo',
-            })
-        }
-
-        return res.status(httpStatus.OK).json({
-            data: question,
-            message: 'Lấy câu hỏi tiếp theo thành công',
-        })
-    } catch (e) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            message: e.message || 'Lấy câu hỏi tiếp theo thất bại',
-        })
-    }
-}
-
 export const answerQuiz = async (req, res) => {
     try {
         const { questionId, exerciseId, userId, answer } = req.body

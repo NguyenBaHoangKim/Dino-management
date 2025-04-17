@@ -31,10 +31,6 @@ router
     .get(quizController.getQuizsByExerciseIdForTeacher)
 
 router
-    .route('/next-question')
-    .post(quizController.getNextQuestion)
-
-router
     .route('/answer')
     .post(quizController.answerQuiz)
 

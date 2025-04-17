@@ -4,6 +4,7 @@ import Exercise from '../models/exercise.model.js'
 import Lesson from '../models/lesson.model.js'
 import Course from '../models/course.model.js'
 import CourseMember from '../models/courseMember.model.js'
+import Answer from '../models/answer.model.js'
 
 export const createScore = async (req, res) => {
     try {
@@ -101,7 +102,11 @@ export const deleteScore = async (req, res) => {
             })
         }
 
+        const deleteAnswer = await Answer.deleteMany({ user_id: deletedScore.user_id, exercise_id: deletedScore.exercise_id})
+
         return res.status(httpStatus.OK).json({
+            data: deletedScore,
+            check: deleteAnswer,
             message: 'Xóa điểm số thành công',
         })
     } catch (e) {
@@ -200,6 +205,7 @@ export const getAllScoreInCourse = async (req, res) => {
                         return {
                             //...exercise.toObject(),
                             title: exercise.title,
+                            exercise_id: exercise._id,
                             member: courseMember.map((member) => {
                                 const userScore = scores.find((score) => score.user_id._id.toString() === member.user_id._id.toString())
                                 return {

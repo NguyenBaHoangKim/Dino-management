@@ -15,6 +15,9 @@ router
     .route('/search')
     .get(projectController.getListProjectsByName)
 
+router
+    .route('/clone')
+    .post(projectController.cloneProject)
 
 router
     .route('/change-type')

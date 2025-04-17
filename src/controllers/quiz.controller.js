@@ -28,10 +28,6 @@ export const getQuizsByExerciseIdForTeacher = async (req, res) => {
     await quizService.getQuizsByExerciseIdForTeacher(req, res)
 }
 
-export const getNextQuestion = async (req, res) => {
-    await quizService.getNextQuestion(req, res)
-}
-
 export const answerQuiz = async (req, res) => {
     await quizService.answerQuiz(req, res)
 }

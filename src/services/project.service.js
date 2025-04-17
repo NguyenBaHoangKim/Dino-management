@@ -73,6 +73,39 @@ export const createProject = async (req, res) => {
     }
 }
 
+export const cloneProject = async (req, res) => {
+    try {
+        const { projectId, userId } = req.body
+
+        const project = await Project.findById(projectId)
+        if (!project) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'Project không tồn tại',
+            })
+        }
+
+        const newProject = new Project({
+            name: project.name,
+            direction: project.direction,
+            code: project.code,
+            description: project.description,
+            images: project.images,
+            user_id: userId,
+            block: project.block,
+        })
+        const savedProject = await newProject.save()
+
+        return res.status(httpStatus.CREATED).json({
+            data: savedProject,
+            message: 'Clone project thành công',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Tạo project thất bại',
+        })
+    }
+}
+
 export const editProject = async (req, res) => {
     try {
         const projectId = req.params.projectId

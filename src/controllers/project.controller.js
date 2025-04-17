@@ -4,6 +4,10 @@ export const createProject = async (req, res) => {
     await projectService.createProject(req, res)
 }
 
+export const cloneProject = async (req, res) => {
+    await projectService.cloneProject(req, res)
+}
+
 export const editProject = async (req, res) => {
     await projectService.editProject(req, res)
 }
