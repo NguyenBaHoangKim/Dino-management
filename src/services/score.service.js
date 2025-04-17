@@ -207,6 +207,7 @@ export const getAllScoreInCourse = async (req, res) => {
                                     username: member.user_id.username,
                                     email: member.user_id.email,
                                     score: userScore ? userScore.score : null,
+                                    scoreId: userScore ? userScore._id : null,
                                 }
                             })
                         }
