@@ -12,7 +12,7 @@ router
     .get(projectController.getListProjects)
 
 router
-    .route('/search')
+    .route('/search-type')
     .get(projectController.getListProjectsByName)
 
 router

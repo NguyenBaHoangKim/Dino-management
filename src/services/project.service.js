@@ -204,17 +204,59 @@ export const getProjectsPerPage = async (req, res) => {
 
 export const getListProjectsByName = async (req, res) => {
     try {
-        const { name } = req.query
-        console.log('name:   ' + name)
-        const projects = await Project.find({
-            name: {
-                $regex: name,
-                $options: 'i',
-            },
+        let { page, perPage, name, is_mine, user_id } = req.query
+        if (!page || !perPage) {
+            page = PAGE
+            perPage = PER_PAGE
+        }
+        const skip = (page - 1) * perPage
+        const limit = parseInt(perPage, 10)
+
+        is_mine = is_mine === 'true' ? true : false
+
+        // Build the search query
+        const searchQuery = name
+            ? { name: { $regex: name, $options: 'i' } } // Case-insensitive search by name
+            : {}
+
+        let projects, totalProjects, message
+
+        if (is_mine) { // tim kiem prj cua toi
+            searchQuery.user_id = user_id
+            projects = await Project.find(searchQuery).skip(skip).limit(limit).populate('user_id')
+            totalProjects = await Project.countDocuments(searchQuery)
+            message = 'Lấy danh sách projects của tôi thành công'
+        } else if (user_id) { //tim kiem prj da luu
+            const favorite = await Favorite.find({
+                user_id: user_id,
+                object_type: FAVOURITE_TYPE.PROJECT,
+            })
+
+            const projectIds = favorite.map((item) => item.object_id)
+            projects = await Project.find({ _id: { $in: projectIds } })
+                .skip(skip)
+                .limit(limit)
+                .populate('user_id')
+            totalProjects = projectIds.length
+            message = 'Lấy danh sách projects đã lưu thành công'
+        } else {
+            projects = await Project.find(searchQuery).skip(skip).limit(limit).populate('user_id')
+            totalProjects = await Project.countDocuments(searchQuery)
+            message = 'Lấy danh sách projects bình thươờng thành công'
+        }
+
+        projects.forEach((project) => {
+            if (project.user_id) {
+                project.user_id = project.user_id.transformUserInformation()
+            }
         })
+
         return res.status(httpStatus.OK).json({
             data: projects,
-            message: 'Lấy danh sách projects thành công',
+            page: parseInt(page, 10),
+            total: totalProjects,
+            totalPages: Math.ceil(totalProjects / limit),
+            message: message,
         })
     } catch (e) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -257,6 +299,7 @@ export const addProjectToFavorites = async (req, res) => {
 
         const checkFavourite = await Favorite.findOne({
             user_id: userId,
+            object_id: projectId,
             object_type: FAVOURITE_TYPE.PROJECT,
         })
 
@@ -290,6 +333,14 @@ export const getFavoriteProjects = async (req, res) => {
     try {
         const { userId } = req.query
 
+        let { page, perPage } = req.query
+
+        page = page || PAGE
+        perPage = perPage || PER_PAGE
+
+        const skip = (page - 1) * perPage
+        const limit = parseInt(perPage, 10)
+
         const favorite = await Favorite.find({
             user_id: userId,
             object_type: FAVOURITE_TYPE.PROJECT,
@@ -297,6 +348,8 @@ export const getFavoriteProjects = async (req, res) => {
 
         const projectIds = favorite.map((item) => item.object_id)
         const projects = await Project.find({ _id: { $in: projectIds } })
+            .skip(skip)
+            .limit(limit)
 
         return res.status(httpStatus.OK).json({
             data: projects,
