@@ -24,6 +24,10 @@ export const getLessonsByCourseId = async (req, res) => {
     await lessonService.getLessonsByCourseId(req, res)
 }
 
+export const getLessonsByCourseIdForStudent = async (req, res) => {
+    await lessonService.getLessonsByCourseIdForStudent(req, res)
+}
+
 export const createLessonByCourseId = async (req, res) => {
     await lessonService.createLessonByCourseId(req, res)
 }

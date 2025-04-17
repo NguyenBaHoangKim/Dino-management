@@ -3,7 +3,6 @@ import Lesson from '#models/lesson'
 import { uploadImage } from '#utils/github'
 import httpStatus from 'http-status'
 import Exercise from '../models/exercise.model.js'
-import CourseMember from '../models/courseMember.model.js'
 import Score from '../models/score.model.js'
 
 export const createLessonByCourseId = async (req, res) => {
@@ -187,7 +186,7 @@ export const changeLessonStatus = async (req, res) => {
     }
 }
 
-export const getLessonsByCourseId = async (req, res) => {
+export const getLessonsByCourseIdForStudent = async (req, res) => {
     try {
         const { courseId, userId } = req.body
         const lessons = await Lesson.find({ course_id: courseId })
@@ -222,6 +221,32 @@ export const getLessonsByCourseId = async (req, res) => {
         //         };
         //     })
         // );
+
+        return res.status(httpStatus.OK).json({
+            data: lessonsWithExercises,
+            message: 'Lấy danh sách lesson thành công',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Lấy danh sách lesson thất bại',
+        })
+    }
+}
+
+export const getLessonsByCourseId = async (req, res) => {
+    try {
+        const { courseId } = req.params
+        const lessons = await Lesson.find({ course_id: courseId })
+
+        const lessonsWithExercises = await Promise.all(
+            lessons.map(async (lesson) => {
+                const exercises = await Exercise.find({ lesson_id: lesson._id })
+                return {
+                    ...lesson.toObject(),
+                    exercises: exercises,
+                }
+            })
+        )
 
         return res.status(httpStatus.OK).json({
             data: lessonsWithExercises,
