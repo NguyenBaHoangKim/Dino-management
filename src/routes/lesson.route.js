@@ -23,6 +23,9 @@ router
 router
     .route('/course/:courseId')
     .post(authorize(), upload.single('images'), lessonController.createLessonByCourseId)
-    .get(lessonController.getLessonsByCourseId)
+
+router
+    .route('/lesson-student')
+    .post(lessonController.getLessonsByCourseId)
 
 export default router

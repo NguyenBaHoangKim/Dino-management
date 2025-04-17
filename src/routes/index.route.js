@@ -7,7 +7,6 @@ import lessonRoutes from '#routes/lesson'
 import courseRoutes from '#routes/course'
 import commentRoutes from '#routes/comment'
 import classroomRoutes from '#routes/classroom'
-import assignmentRoutes from '#routes/assignment'
 import codeBlockRoutes from '#routes/codeBlock'
 import quizRouters from '#routes/quiz'
 import exerciseRoute from '#routes/exercise'
@@ -23,7 +22,6 @@ router.use('/lesson', lessonRoutes)
 router.use('/course', courseRoutes)
 router.use('/comment', commentRoutes)
 router.use('/classroom', classroomRoutes)
-router.use('/assignment', assignmentRoutes)
 router.use('/code-block', codeBlockRoutes)
 router.use('/exercise', exerciseRoute)
 router.use('/quiz', quizRouters)

@@ -189,18 +189,39 @@ export const changeLessonStatus = async (req, res) => {
 
 export const getLessonsByCourseId = async (req, res) => {
     try {
-        const { courseId } = req.params
+        const { courseId, userId } = req.body
         const lessons = await Lesson.find({ course_id: courseId })
 
         const lessonsWithExercises = await Promise.all(
             lessons.map(async (lesson) => {
                 const exercises = await Exercise.find({ lesson_id: lesson._id })
+                const exerciseCount = await Exercise.countDocuments({ lesson_id: lesson._id });
+                const scores = await Score.countDocuments({ user_id: userId, lesson_id: lesson._id })
                 return {
                     ...lesson.toObject(),
+                    unFinished: exerciseCount - scores,
                     exercises: exercises,
                 }
             })
         )
+
+        // const lessonsWithExercises2 = await Promise.all(
+        //     lessons.map(async (lesson) => {
+        //         const exercises = await Promise.all(
+        //             (await Exercise.find({ lesson_id: lesson._id })).map(async (exercise) => {
+        //                 const score = await Score.findOne({ user_id: userId, exercise_id: exercise._id });
+        //                 return {
+        //                     ...exercise.toObject(),
+        //                     score: score ? score.score : null, // Include the user's score or null if not found
+        //                 };
+        //             })
+        //         );
+        //         return {
+        //             ...lesson.toObject(),
+        //             exercises: exercises,
+        //         };
+        //     })
+        // );
 
         return res.status(httpStatus.OK).json({
             data: lessonsWithExercises,
