@@ -29,7 +29,7 @@ router
 
 router
     .route('/favorite')
-    .post(authorize(), projectController.addProjectToFavorites) //add or remove
+    .post(projectController.addProjectToFavorites) //add or remove
     .get(projectController.getFavoriteProjects)
 
 router

@@ -10,9 +10,8 @@ const favoriteSchema = new mongoose.Schema(
             required: true,
         },
         object_id: {
-            type: [mongoose.Schema.Types.ObjectId],
+            type: mongoose.Schema.Types.ObjectId,
             required: true,
-            default: [],
         },
         object_type: {
             type: String,

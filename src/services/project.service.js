@@ -255,35 +255,29 @@ export const addProjectToFavorites = async (req, res) => {
     try {
         const { userId, projectId } = req.body
 
-        let favorite = await Favorite.findOne({
+        const checkFavourite = await Favorite.findOne({
             user_id: userId,
             object_type: FAVOURITE_TYPE.PROJECT,
         })
 
-        if (favorite) {
-            const index = favorite.object_id.indexOf(projectId)
-            if (index !== -1) {
-                favorite.object_id.splice(index, 1)
-                await favorite.save()
-                return res.status(httpStatus.OK).json({
-                    data: favorite,
-                    message: 'Project removed from favorites successfully',
-                })
-            }
-            favorite.object_id.push(projectId)
+        let savedFavorite, message
+
+        if (checkFavourite) {
+            savedFavorite = await Favorite.findByIdAndDelete(checkFavourite._id)
+            message = 'Project removed from favorites successfully'
         } else {
-            favorite = new Favorite({
+            const newFavorite = new Favorite({
                 user_id: userId,
-                object_id: [projectId],
+                object_id: projectId,
                 object_type: FAVOURITE_TYPE.PROJECT,
             })
+            savedFavorite = await newFavorite.save()
+            message = 'Project added to favorites successfully'
         }
-
-        const savedFavorite = await favorite.save()
 
         return res.status(httpStatus.CREATED).json({
             data: savedFavorite,
-            message: 'Project added to favorites successfully',
+            message: message
         })
     } catch (e) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -296,20 +290,13 @@ export const getFavoriteProjects = async (req, res) => {
     try {
         const { userId } = req.query
 
-        const favorite = await Favorite.findOne({
+        const favorite = await Favorite.find({
             user_id: userId,
             object_type: FAVOURITE_TYPE.PROJECT,
         })
 
-        if (!favorite || favorite.object_id.length === 0) {
-            return res.status(httpStatus.NOT_FOUND).json({
-                message: 'No favorite projects found',
-            })
-        }
-
-        const projects = await Project.find({
-            _id: { $in: favorite.object_id },
-        })
+        const projectIds = favorite.map((item) => item.object_id)
+        const projects = await Project.find({ _id: { $in: projectIds } })
 
         return res.status(httpStatus.OK).json({
             data: projects,
