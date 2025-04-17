@@ -5,6 +5,7 @@ import Answer from '../models/answer.model.js'
 import { PAGE, PER_PAGE } from '#constants/index'
 import Lesson from '../models/lesson.model.js'
 import CourseMember from '../models/courseMember.model.js'
+import Question from '../models/question.model.js'
 
 // Create a new exercise
 export const createExercise = async (req, res) => {
@@ -170,8 +171,10 @@ export const getExerciseByLessonIdForStudent = async (req, res) => {
         const exercisesWithScores = await Promise.all(
             exercises.map(async (exercise) => {
                 const score = await Score.findOne({ user_id: userId, exercise_id: exercise._id });
+                const countQuiz = await Question.countDocuments({ exercise_id: exercise._id });
                 return {
                     ...exercise.toObject(),
+                    countQuiz: countQuiz,
                     score: score ? score.score : null,
                 };
             })
@@ -179,7 +182,7 @@ export const getExerciseByLessonIdForStudent = async (req, res) => {
 
         return res.status(httpStatus.OK).json({
             data: exercisesWithScores,
-            message: 'Lấy bài tập theo lesson thành công',
+            message: 'Lấy bài tập theo lesson cho hoc sinh thành công',
         });
     } catch (e) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -217,7 +220,7 @@ export const getExerciseByLessonIdForTeacher = async (req, res) => {
 
         return res.status(httpStatus.OK).json({
             data: exercisesWithProcess,
-            message: 'Lấy bài tập theo lesson thành công',
+            message: 'Lấy bài tập theo lesson cho giao vien thành công',
         });
     } catch (e) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({

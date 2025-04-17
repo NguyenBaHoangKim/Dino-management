@@ -104,7 +104,7 @@ export const deleteLesson = async (req, res) => {
 
 export const getLessonById = async (req, res) => {
     try {
-        const lessonId = req.params
+        const lessonId = req.params.lessonId
         const lesson = await Lesson.findById(lessonId)
 
         if (!lesson) {
