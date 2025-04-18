@@ -1,6 +1,8 @@
 import express from 'express'
 import * as forumController from '#controllers/forum'
 import upload from '#middlewares/file'
+import { authorize } from '../middlewares/auth.middleware.js'
+import { ROLE } from '../enums/role.enum.js'
 // import validate from '#middlewares/validation'
 
 const router = express.Router()
@@ -8,7 +10,7 @@ const router = express.Router()
 router
     .route('/')
     .get(forumController.getListForums)
-    .post(upload.single('image'), forumController.createForum)
+    .post(authorize(), upload.single('image'), forumController.createForum)
 
 router
     .route('/userId/:userId')
@@ -17,8 +19,8 @@ router
 router
     .route('/:forumId')
     .get(forumController.getForumById)
-    .put(upload.single('image'), forumController.editForum)
-    .delete(forumController.deleteForum)
+    .put(authorize(), upload.single('image'), forumController.editForum)
+    .delete(authorize(), forumController.deleteForum)
 
 router
     .route('/user/:userId')
@@ -26,7 +28,7 @@ router
 
 router
     .route('/like')
-    .post(forumController.likeForum)
+    .post(authorize(), forumController.likeForum)
 
 router
     .route('/like/check')
@@ -38,7 +40,7 @@ router
 
 router
     .route('/repost')
-    .post(forumController.reportForum)
+    .post(authorize(), forumController.reportForum)
 
 router
     .route('/repost/:userId')

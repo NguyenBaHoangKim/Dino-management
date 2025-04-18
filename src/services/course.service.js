@@ -257,12 +257,15 @@ export const getCourseById = async (req, res) => {
 
 export const getListCoursePerPage = async (req, res) => {
     try {
-        let { page, perPage } = req.query
+        let { page, perPage, title } = req.query
         if (!page || !perPage) {
             page = PAGE
             perPage = PER_PAGE
         }
         let courses, totalCourses, totalPages
+        const searchQuery = title
+            ? { title: { $regex: title, $options: 'i' } } // Case-insensitive search by name
+            : {}
 
         if (parseInt(perPage, 10) === -1) {
             courses = await Course.find()
@@ -272,8 +275,8 @@ export const getListCoursePerPage = async (req, res) => {
         } else {
             const skip = (page - 1) * perPage
             const limit = parseInt(perPage, 10)
-            courses = await Course.find().skip(skip).limit(limit)
-            totalCourses = await Course.countDocuments()
+            courses = await Course.find(searchQuery).skip(skip).limit(limit)
+            totalCourses = await Course.countDocuments(searchQuery)
             totalPages = Math.ceil(totalCourses / limit)
         }
 
@@ -281,6 +284,7 @@ export const getListCoursePerPage = async (req, res) => {
             data: courses,
             page: parseInt(page, 10),
             totalPages: totalPages,
+            totalCourses: totalCourses,
             message: 'Lấy danh sách courses thành công',
         })
     } catch (e) {

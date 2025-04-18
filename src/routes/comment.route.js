@@ -7,7 +7,7 @@ const router = express.Router()
 
 router
     .route('/')
-    .post(commentController.createComment)
+    .post(authorize(), commentController.createComment)
     .get(commentController.getAllComments)
 
 router //dang thua
@@ -26,7 +26,7 @@ router
     .route('/:commentId')
     .put(authorize(), commentController.editComment)
     .get(commentController.getCommentById)
-    .delete(commentController.deleteComment)
+    .delete(authorize(), commentController.deleteComment)
 
 router
     .route('/nguyen-comment')

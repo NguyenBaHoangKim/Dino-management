@@ -3,6 +3,7 @@ import * as lessonController from '#controllers/lesson'
 import upload from '#middlewares/file'
 // import validate from '#middlewares/validation'
 import { authorize } from '../middlewares/auth.middleware.js'
+import { ROLE } from '../enums/role.enum.js'
 
 const router = express.Router()
 
@@ -13,8 +14,8 @@ router
 router
     .route('/:lessonId')
     .get(lessonController.getLessonById)
-    .put(upload.single('images'), lessonController.editLesson)
-    .delete(authorize(), lessonController.deleteLesson)
+    .put(authorize([ROLE.TEACHER, ROLE.ADMIN]), upload.single('images'), lessonController.editLesson)
+    .delete(authorize([ROLE.TEACHER, ROLE.ADMIN]), lessonController.deleteLesson)
 
 router
     .route('/status/:lessonId')
@@ -22,7 +23,7 @@ router
 
 router
     .route('/course/:courseId')
-    .post(authorize(), upload.single('images'), lessonController.createLessonByCourseId)
+    .post(authorize([ROLE.TEACHER, ROLE.ADMIN]), upload.single('images'), lessonController.createLessonByCourseId)
     .get(lessonController.getLessonsByCourseId)
 
 router

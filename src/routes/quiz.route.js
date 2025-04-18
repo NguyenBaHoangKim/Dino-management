@@ -2,21 +2,22 @@ import express from 'express'
 import * as quizController from '../controllers/quiz.controller.js'
 import { authorize } from '../middlewares/auth.middleware.js'
 import upload from '../middlewares/file.middleware.js'
+import { ROLE } from '../enums/role.enum.js'
 
 const router = express.Router()
 
 router
     .route('/')
-    .post(upload.single('image'), quizController.createQuiz)
+    .post(authorize([ROLE.TEACHER, ROLE.ADMIN]), upload.single('image'), quizController.createQuiz)
     .get(quizController.getAllQuizs)
 
 router
     .route('/edit')
-    .put(upload.single('image'), quizController.editQuiz)
+    .put(authorize([ROLE.TEACHER, ROLE.ADMIN]), upload.single('image'), quizController.editQuiz)
 
 router
     .route('/delete/:id')
-    .delete(quizController.deleteQuiz)
+    .delete(authorize([ROLE.TEACHER, ROLE.ADMIN]), quizController.deleteQuiz)
 
 router
     .route('/:id')
@@ -32,14 +33,14 @@ router
 
 router
     .route('/answer')
-    .post(quizController.answerQuiz)
+    .post(authorize(), quizController.answerQuiz)
 
 router
     .route('/answer-multiple')
-    .post(quizController.answerMultipleQuiz)
+    .post(authorize(), quizController.answerMultipleQuiz)
 
 router
     .route('/get-submitted-quiz')
-    .post(quizController.getQuizAndAnswerByUserIdAndExerciseId)
+    .post(authorize(), quizController.getQuizAndAnswerByUserIdAndExerciseId)
 
 export default router

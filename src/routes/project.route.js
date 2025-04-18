@@ -17,7 +17,7 @@ router
 
 router
     .route('/clone')
-    .post(projectController.cloneProject)
+    .post(authorize(), projectController.cloneProject)
 
 router
     .route('/change-type')
@@ -29,7 +29,7 @@ router
 
 router
     .route('/favorite')
-    .post(projectController.addProjectToFavorites) //add or remove
+    .post(authorize(), projectController.addProjectToFavorites) //add or remove
     .get(projectController.getFavoriteProjects)
 
 router
@@ -47,7 +47,7 @@ router
 router
     .route('/:projectId')
     .get(projectController.getProjectById)
-    .put(upload.single('images'), projectController.editProject)
+    .put(authorize(), upload.single('images'), projectController.editProject)
     .delete(authorize(), projectController.deleteProject)
 
 router

@@ -1,6 +1,7 @@
 import express from 'express'
 import * as authController from '#controllers/auth'
 import { authorize, oAuth as oAuthLogin } from '#middlewares/auth'
+import { ROLE } from '../enums/role.enum.js'
 // import validate from '#middlewares/validation'
 
 const router = express.Router()
@@ -23,11 +24,11 @@ router //
 
 router
     .route('/change-password')
-    .post(authController.changePassword)
+    .post(authorize(), authController.changePassword)
 
 router
     .route('/reset-password/:userId')
-    .post(authController.resetPassword) //add authorize()
+    .post(authorize([ROLE.ADMIN]), authController.resetPassword) //add authorize()
 
 // router //
 //     .route('/google')

@@ -7,7 +7,6 @@ import LikeHistory from '../models/likeHistory.model.js'
 import User from '../models/user.model.js'
 import Comment from '../models/comment.model.js'
 import Repost from '../models/repost.model.js'
-import SubComment from '../models/subComment.model.js'
 
 export const createForum = async (req, res) => {
     try {
@@ -93,6 +92,8 @@ export const deleteForum = async (req, res) => {
 
         // Delete all comments associated with the forum
         await Comment.deleteMany({ commentable_id: forumId, commentable_type: 'FORUM' })
+        await Repost.deleteMany({ originalPost: forumId })
+        await LikeHistory.deleteMany({ liketable_id: forumId, liketable_type: LIKE_TYPE.FORUM })
 
         return res.status(httpStatus.OK).json({
             message: 'Xóa forum thành công',
@@ -192,12 +193,12 @@ export const getListForumsBaseOnUserId = async (req, res) => {
         }
         let forums, totalForums
         if (parseInt(perPage, 10) === -1) {
-            forums = await Forum.find().populate('user_id')
+            forums = await Forum.find().sort({ createdAt: -1 }).populate('user_id')
             totalForums = forums.length
         } else {
             const skip = (page - 1) * perPage
             const limit = parseInt(perPage, 10)
-            forums = await Forum.find().skip(skip).limit(limit).populate('user_id')
+            forums = await Forum.find().sort({ createdAt: -1 }).skip(skip).limit(limit).populate('user_id')
             totalForums = await Forum.countDocuments()
         }
 
