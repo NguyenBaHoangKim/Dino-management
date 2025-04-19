@@ -29,7 +29,7 @@ router
 
 router
     .route('/exercise/teacher/:exerciseId')
-    .get(quizController.getQuizsByExerciseIdForTeacher)
+    .get(authorize([ROLE.TEACHER, ROLE.ADMIN]), quizController.getQuizsByExerciseIdForTeacher)
 
 router
     .route('/answer')

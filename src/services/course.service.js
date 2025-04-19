@@ -8,6 +8,7 @@ import Favorite from '../models/favorite.model.js'
 import CourseMember from '../models/courseMember.model.js'
 import User from '#models/user'
 import Exercise from '../models/exercise.model.js'
+import Question from '../models/question.model.js'
 
 export const createCourse = async (req, res) => {
     try {
@@ -507,7 +508,19 @@ export const cloneCourse = async (req, res) => {
                     _id: undefined,
                     lesson_id: newLesson._id,
                 })
-                await newExercise.save()
+                const savedExercise = await newExercise.save()
+
+                // Clone questions associated with the original exercise
+                const questions = await Question.find({ exercise_id: exercise._id })
+                for (const question of questions) {
+                    const newQuestion = new Question({
+                        ...question.toObject(),
+                        _id: undefined,
+                        lesson_id: newLesson._id,
+                        exercise_id: savedExercise._id,
+                    })
+                    await newQuestion.save()
+                }
             }
         }
 

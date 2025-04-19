@@ -4,6 +4,8 @@ import { uploadImage } from '#utils/github'
 import httpStatus from 'http-status'
 import Exercise from '../models/exercise.model.js'
 import Score from '../models/score.model.js'
+import Answer from '../models/answer.model.js'
+import Question from '../models/question.model.js'
 
 export const createLessonByCourseId = async (req, res) => {
     try {
@@ -91,6 +93,17 @@ export const deleteLesson = async (req, res) => {
                 message: 'Không tìm thấy lesson',
             })
         }
+
+        // Xóa tất cả bài tập liên quan đến lesson này
+        const exercises = await Exercise.find({ lesson_id: lessonId })
+        await Exercise.deleteMany({ lesson_id: lessonId })
+        await Question.deleteMany({ lesson_id: lessonId })
+        await Score.deleteMany({lesson_id: lessonId})
+        for (const exercise of exercises) {
+            await Answer.deleteMany({ exercise_id: exercise._id })
+        }
+        // Xóa tất cả điểm số liên quan đến lesson này va xoa ca submit answer
+
 
         return res.status(httpStatus.OK).json({
             message: 'Xóa lesson thành công',

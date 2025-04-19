@@ -96,6 +96,11 @@ export const deleteExercise = async (req, res) => {
             })
         }
 
+        // Delete all questions and answers related to the exercise
+        await Question.deleteMany({ exercise_id: exerciseId })
+        await Answer.deleteMany({ exercise_id: exerciseId })
+        await Score.deleteMany({ exercise_id: exerciseId })
+
         return res.status(httpStatus.OK).json({
             data: exercise,
             message: 'Xóa bài tập thành công',
