@@ -25,6 +25,7 @@ export default async function main() {
 async function startServer() {
     setupErrorHandling()
     await database.connect(config.mongo.uri)
+    logger.info('database connected')
     await email.verifyConnection()
 
     createTerminus(server, {

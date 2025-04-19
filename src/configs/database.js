@@ -11,6 +11,13 @@ if (config.log.databaseQueries) {
 
 export async function connect(uri) {
     await mongoose.connect(uri)
+    mongoose.connection.on('error', err => {
+        logger.error({ err }, 'mongodb connection error')
+        process.exit(1)
+    })
+    mongoose.connection.on('connected', () => {
+        logger.info('mongodb connected')
+    })
     return mongoose.connection
 }
 
