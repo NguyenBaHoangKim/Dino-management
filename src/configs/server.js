@@ -19,8 +19,11 @@ const corsOptions = {
     origin: [config.corsOrigin.domain, 'http://localhost:3030', '*'],
     credentials: true,
     optionsSuccessStatus: 204,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
 }
 app.use(cors(corsOptions))
+app.set('trust proxy', 1);
 
 const limiter = rateLimit({
     windowMs: 2 * 60 * 1000,
