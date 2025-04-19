@@ -49,5 +49,12 @@ app.use(express.json())
 
 //app.use('/docs', ...openApiMiddleware)
 app.use('/api', routes)
-
+app.get('/health', async (req, res) => {
+    try {
+        await mongoose.connection.db.admin().ping();
+        res.status(200).json({ status: 'OK', database: 'Connected' });
+    } catch (err) {
+        res.status(500).json({ status: 'Error', database: 'Disconnected' });
+    }
+});
 export default app
