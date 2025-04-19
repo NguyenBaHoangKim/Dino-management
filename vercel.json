@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "bin/www.js",
+      "src": "src/configs/server.js",
       "use": "@vercel/node"
     }
   ],
@@ -11,5 +11,8 @@
       "src": "/(.*)",
       "dest": "/src/configs/server.js"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
