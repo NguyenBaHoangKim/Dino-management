@@ -2,13 +2,15 @@ import config from '#configs/environment'
 import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'
 import httpStatus from 'http-status'
+import path from 'path'
 
 const { repo, owner, token, baseUrl } = config.github
 
 export const uploadImage = async (req, res, folder) => {
     try {
-        const fileExtension = req.file.originalname.split('.').pop()
-        const uniqueFilename = `${uuidv4()}.${fileExtension}`
+        const originalName = path.parse(req.file.originalname).name.replace(/\s+/g, '-')
+        const extension = path.extname(req.file.originalname)
+        const uniqueFilename = `${originalName}-${uuidv4()}${extension}`
 
         const base64Image = req.file.buffer.toString('base64')
 

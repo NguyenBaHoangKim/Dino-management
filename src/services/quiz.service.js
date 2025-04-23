@@ -50,7 +50,7 @@ export const importQuizData = async (req, res) => {
         }
         // Parse file Excel
         const file = req.file
-        const workbook = xlsx.readFile(file.path)
+        const workbook = xlsx.read(file.buffer, { type: 'buffer' })
         const sheetName = workbook.SheetNames[0]
         // Đọc dữ liệu dạng mảng, mỗi hàng là một mảng giá trị theo cột
         const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, defval: '' })
