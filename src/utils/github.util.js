@@ -7,8 +7,11 @@ const { repo, owner, token, baseUrl } = config.github
 
 export const uploadImage = async (req, res, folder) => {
     try {
-        const namePath = `uploads/${req.file.filename}`
-        const fileData = fs.readFileSync(namePath)
+        //const namePath = `uploads/${req.file.filename}`
+        // Đường dẫn file thực tế trong /tmp
+        //const filePath = req.file.path // Ví dụ: /tmp/filename-uuid-timestamp.jpg
+        const filePath = `/tmp/${req.file.filename}` // Ví dụ: /tmp/filename-uuid-timestamp.jpg
+        const fileData = fs.readFileSync(filePath)
 
         const base64Image = fileData.toString('base64')
 

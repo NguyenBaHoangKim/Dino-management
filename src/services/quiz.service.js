@@ -3,6 +3,7 @@ import httpStatus from 'http-status'
 import Answer from '../models/answer.model.js'
 import { uploadImage } from '../utils/github.util.js'
 import Exercise from '../models/exercise.model.js'
+import xlsx from 'xlsx'
 
 export const createQuiz = async (req, res) => {
     try {
@@ -33,6 +34,90 @@ export const createQuiz = async (req, res) => {
     } catch (e) {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
             message: e.message || 'Tạo Quiz thất bại',
+        })
+    }
+}
+
+export const importQuizData = async (req, res) => {
+    try {
+        const { exercise_id } = req.body
+
+        const exercise = await Exercise.findById(exercise_id)
+        if (!exercise) {
+            return res.status(httpStatus.NOT_FOUND).json({
+                message: 'Không tìm thấy bài tập',
+            })
+        }
+        // Parse file Excel
+        const file = req.file
+        const workbook = xlsx.readFile(file.path)
+        const sheetName = workbook.SheetNames[0]
+        // Đọc dữ liệu dạng mảng, mỗi hàng là một mảng giá trị theo cột
+        const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, defval: '' })
+
+        const groupedQuestions = {}
+        let currentSTT = null
+
+        // Duyệt từng dòng, bắt đầu từ hàng 2 (bỏ qua hàng tiêu đề)
+        for (let rowIndex = 1; rowIndex < sheetData.length; rowIndex++) {
+            const row = sheetData[rowIndex]
+
+            // Kiểm tra cột STT (cột 0)
+            const stt = row[0]
+
+            // Nếu có STT mới, khởi tạo câu hỏi mới
+            if (stt) {
+                currentSTT = stt
+                groupedQuestions[currentSTT] = {
+                    question: row[1], // Cột 1: Câu hỏi
+                    answers: [],
+                    correct_answer: [],
+                    type_answer: row[4] === 'x' ? 'one_choice' : 'multi_choice' // Cột 4: Chọn 1 đáp án
+                }
+
+                // Thêm đáp án đầu tiên từ hàng này
+                if (row[2]) { // Cột 2: Câu trả lời
+                    groupedQuestions[currentSTT].answers.push(row[2])
+                    if (row[3] === 'x') { // Cột 3: Câu trả lời đúng
+                        groupedQuestions[currentSTT].correct_answer.push(row[2])
+                    }
+                }
+            } else if (currentSTT) {
+                // Nếu không có STT, đây là đáp án tiếp theo của câu hỏi hiện tại
+                if (row[2]) { // Cột 2: Câu trả lời
+                    groupedQuestions[currentSTT].answers.push(row[2])
+                    if (row[3] === 'x') { // Cột 3: Câu trả lời đúng
+                        groupedQuestions[currentSTT].correct_answer.push(row[2])
+                    }
+                }
+            }
+        }
+
+        // Chuyển đổi thành định dạng Question model
+        const questions = Object.keys(groupedQuestions).map((stt, index) => ({
+            index: parseInt(stt),
+            lesson_id: exercise.lesson_id || '',
+            exercise_id: exercise_id || '',
+            question: groupedQuestions[stt].question,
+            answers: groupedQuestions[stt].answers,
+            correct_answer: groupedQuestions[stt].correct_answer,
+            image: '',
+            type_answer: groupedQuestions[stt].type_answer
+        }))
+
+        console.log('Processed questions:', questions)
+
+        // Lưu vào database (bỏ comment khi cần)
+        // const savedQuestions = await Question.insertMany(questions)
+
+        return res.status(httpStatus.CREATED).json({
+            data: questions, // Trả về questions để kiểm tra
+            message: 'Imported quiz data successfully'
+        })
+    } catch (e) {
+        console.error('Error importing quiz data:', e)
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Failed to import quiz data'
         })
     }
 }

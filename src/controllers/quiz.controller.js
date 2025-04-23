@@ -4,6 +4,10 @@ export const createQuiz = async (req, res) => {
     await quizService.createQuiz(req, res)
 }
 
+export const importQuizData = async (req, res) => {
+    await quizService.importQuizData(req, res)
+}
+
 export const editQuiz = async (req, res) => {
     await quizService.editQuiz(req, res)
 }

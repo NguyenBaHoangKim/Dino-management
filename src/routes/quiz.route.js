@@ -12,6 +12,10 @@ router
     .get(quizController.getAllQuizs)
 
 router
+    .route('/import')
+    .post(upload.single('file'), quizController.importQuizData)
+
+router
     .route('/edit')
     .put(authorize([ROLE.TEACHER, ROLE.ADMIN]), upload.single('image'), quizController.editQuiz)
 
