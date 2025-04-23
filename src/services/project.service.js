@@ -443,14 +443,10 @@ export const setTypeProject = async (req, res) => {
         const { projectId, type } = req.body
 
         const project = await Project.findById(projectId)
+
         if (!project) {
             return res.status(httpStatus.NOT_FOUND).json({
                 message: 'Project not found',
-            })
-        }
-        if (!Object.values(PROJECT_TYPE).includes(type)) {
-            return res.status(httpStatus.BAD_REQUEST).json({
-                message: 'Invalid type project',
             })
         }
 
