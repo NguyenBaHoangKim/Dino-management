@@ -133,7 +133,12 @@ export const getForumById = async (req, res) => {
 export const getForumsByUserId = async (req, res) => {
     try {
         const { userId } = req.params
-        const forums = await Forum.find({ user_id: userId })
+        let { page, perPage } = req.query
+        page = page ? parseInt(page, 10) : PAGE
+        perPage = perPage ? parseInt(perPage, 10) : PER_PAGE
+        const skip = (page - 1) * perPage
+        const limit = perPage
+        const forums = await Forum.find({ user_id: userId }).skip(skip).limit(limit).sort({ createdAt: -1 }).populate('user_id', '_id username avatar')
 
         return res.status(httpStatus.OK).json({
             data: forums,
@@ -252,29 +257,6 @@ export const getListForumsBaseOnUserId = async (req, res) => {
     }
 }
 
-export const viewForum = async (req, res) => {
-    try {
-        const { forumId, viewCount } = req.body
-        const forum = await Forum.findById(forumId)
-
-        if (!forum) {
-            return res.status(httpStatus.NOT_FOUND).json({
-                message: 'Không tìm thấy forum',
-            })
-        }
-        const updatedForum = await Forum.findByIdAndUpdate({ _id: forumId }, { view_count: viewCount + 1 }, { new: true })
-
-        return res.status(httpStatus.OK).json({
-            data: updatedForum,
-            message: 'View forum thành công',
-        })
-    } catch (e) {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            message: e.message || 'View forum thất bại',
-        })
-    }
-}
-
 export const isLikedForum = async (req, res) => {
     try {
         const { forumId, userId } = req.body
@@ -346,8 +328,15 @@ export const likeForum = async (req, res) => {
 export const getListForumLikedByUserId = async (req, res) => {
     try {
         const { userId } = req.params
+        let { page, perPage } = req.query
 
-        const likedForums = await LikeHistory.find({ user_id: userId, liketable_type: LIKE_TYPE.FORUM })
+        page = page ? parseInt(page, 10) : PAGE
+        perPage = perPage ? parseInt(perPage, 10) : PER_PAGE
+
+        const skip = (page - 1) * perPage
+        const limit = perPage
+
+        const likedForums = await LikeHistory.find({ user_id: userId, liketable_type: LIKE_TYPE.FORUM }).skip(skip).limit(limit).sort({ createdAt: -1 })
         const forumIds = likedForums.map(likeHistory => likeHistory.liketable_id)
 
         const forums = await Forum.find({ _id: { $in: forumIds } }).populate('user_id', '_id username avatar')
@@ -412,10 +401,15 @@ export const repostAForum = async (req, res) => {
 export const getRepostByUserId = async (req, res) => {
     try {
         const { userId } = req.params
+        let { page, perPage } = req.query
+        page = page ? parseInt(page, 10) : PAGE
+        perPage = perPage ? parseInt(perPage, 10) : PER_PAGE
+        const skip = (page - 1) * perPage
+        const limit = parseInt(perPage, 10)
         const reposts = await Repost.find({ user_id: userId }).populate({
             path: 'originalPost',
             populate: { path: 'user_id' },
-        })
+        }).skip(skip).limit(limit).sort({ createdAt: -1 })
 
         const repostList = reposts.map(repost => repost.originalPost)
 
