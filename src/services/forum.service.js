@@ -161,13 +161,13 @@ export const getListForums = async (req, res) => {
             : {};
 
         if (parseInt(perPage, 10) === -1) {
-            forums = await Forum.find(searchFilter).populate('user_id')
+            forums = await Forum.find(searchFilter).populate('user_id').sort({ createdAt: -1 })
             totalForums = forums.length
         } else {
             const skip = (page - 1) * perPage
             const limit = parseInt(perPage, 10)
-            forums = await Forum.find(searchFilter).skip(skip).limit(limit).populate('user_id')
-            totalForums = await Forum.countDocuments()
+            forums = await Forum.find(searchFilter).skip(skip).limit(limit).populate('user_id').sort({ createdAt: -1 })
+            totalForums = await Forum.countDocuments(searchFilter)
         }
 
         forums.forEach((forum) => {
