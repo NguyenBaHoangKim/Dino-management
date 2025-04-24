@@ -149,19 +149,24 @@ export const getForumsByUserId = async (req, res) => {
 //cai nay lay cho admin
 export const getListForums = async (req, res) => {
     try {
-        let { page, perPage } = req.query
+        let { page, perPage, name } = req.query
         if (!page || !perPage) {
             page = PAGE
             perPage = PER_PAGE
         }
         let forums, totalForums
+        //find by name
+        const searchFilter = name
+            ? { title: { $regex: name, $options: 'i' } } // Case-insensitive search
+            : {};
+
         if (parseInt(perPage, 10) === -1) {
-            forums = await Forum.find().populate('user_id')
+            forums = await Forum.find(searchFilter).populate('user_id')
             totalForums = forums.length
         } else {
             const skip = (page - 1) * perPage
             const limit = parseInt(perPage, 10)
-            forums = await Forum.find().skip(skip).limit(limit).populate('user_id')
+            forums = await Forum.find(searchFilter).skip(skip).limit(limit).populate('user_id')
             totalForums = await Forum.countDocuments()
         }
 
