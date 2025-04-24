@@ -39,13 +39,12 @@ initialize().catch(err => {
 
 // Configure CORS
 const corsOptions = {
-    origin: [config.corsOrigin.domain, 'http://localhost:3030', '*', 'https://dino-fe-nhap.vercel.app', 'https://dino-web-roan.vercel.app'],
+    origin: [config.corsOrigin.domain, 'http://localhost:3030', 'https://dino-fe-nhap.vercel.app', 'https://dino-web-roan.vercel.app'],
     credentials: true,
     optionsSuccessStatus: 204,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
 };
-console.log('CORS options:', corsOptions);
 app.use(cors(corsOptions));
 app.set('trust proxy', 1);
 

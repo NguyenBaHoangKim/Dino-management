@@ -44,7 +44,7 @@ export const createProject = async (req, res) => {
         if (!user) {
             throw new Error('User không tồn tại')
         }
-        let imageUrl = ''
+        let imageUrl = undefined
         if (req.file) {
             imageUrl = await uploadImage(req, res, 'project')
         }

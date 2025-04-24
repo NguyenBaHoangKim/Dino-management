@@ -11,7 +11,7 @@ export const createLessonByCourseId = async (req, res) => {
     try {
         const { courseId } = req.params
         const { title, description, videoUrl, body, status } = req.body
-        let imageUrl = []
+        let imageUrl = undefined
         if (req.file) {
             imageUrl = await uploadImage(req, res, 'lessons')
         }

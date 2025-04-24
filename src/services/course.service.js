@@ -15,7 +15,7 @@ export const createCourse = async (req, res) => {
         const { title, description, startDate, endDate, certification, teacherId } =
             req.body
 
-        const imageUrl = req.file ? await uploadImage(req, res, 'courses') : []
+        const imageUrl = req.file ? await uploadImage(req, res, 'courses') : undefined
         const newCourse = new Course({
             title: title,
             description: description,

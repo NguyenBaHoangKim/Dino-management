@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import BaseModel from '#models/base'
 import { PROJECT_TYPE } from '../enums/projectType.enum.js'
+import { IMAGE } from '#constants/index'
 
 const projectSchema = new mongoose.Schema(
     {
@@ -35,7 +36,7 @@ const projectSchema = new mongoose.Schema(
         },
         images: {
             type: [String],
-            default: [],
+            default: [IMAGE.project],
         },
         user_id: {
             type: mongoose.Schema.Types.ObjectId,

@@ -4,6 +4,7 @@ import mongoose from 'mongoose'
 import config from '#configs/environment'
 import BaseModel from '#models/base'
 import { ROLES } from '#constants/role'
+import { IMAGE } from '#constants/index'
 
 const { env } = config
 const roles = ['user', 'admin', 'student', 'teacher', 'principal', 'admin_web']
@@ -43,7 +44,7 @@ const userSchema = new mongoose.Schema(
         },
         avatar: {
             type: [String],
-            default: [],
+            default: [IMAGE.avatar],
         },
         birthday: {
             type: Date,

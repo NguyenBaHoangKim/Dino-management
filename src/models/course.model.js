@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import BaseModel from '#models/base'
 import { COURSE_TYPE } from '../enums/courseType.enum.js'
+import { IMAGE } from '#constants/index'
 
 const courseSchema = new mongoose.Schema(
     {
@@ -25,7 +26,7 @@ const courseSchema = new mongoose.Schema(
         },
         images: {
             type: [String],
-            default: [],
+            default: [IMAGE.logo],
         },
         certification: {
             type: String,

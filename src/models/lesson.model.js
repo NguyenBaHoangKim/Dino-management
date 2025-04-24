@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import BaseModel from '#models/base'
 import { LESSON_STATUS } from '#enums/statusLesson'
+import { IMAGE } from '#constants/index'
 
 const lessonSchema = new mongoose.Schema(
     {
@@ -20,7 +21,7 @@ const lessonSchema = new mongoose.Schema(
         },
         images: {
             type: [String],
-            default: [],
+            default: [IMAGE.lesson],
         },
         view_count: {
             type: Number,
