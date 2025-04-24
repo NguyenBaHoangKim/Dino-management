@@ -23,3 +23,7 @@ export const changePassword = async (req, res) => {
 export const resetPassword = async (req, res) => {
     await authService.resetPassword(req, res)
 }
+
+// export const oAuth = async (req, res) => {
+//     await authService.oAuth(req, res)
+// }

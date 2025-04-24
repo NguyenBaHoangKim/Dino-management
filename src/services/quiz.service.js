@@ -110,7 +110,7 @@ export const importQuizData = async (req, res) => {
         // Lưu vào database (bỏ comment khi cần)
         // const savedQuestions = await Question.insertMany(questions)
 
-        return res.status(httpStatus.CREATED).json({
+        return res.status(httpStatus.OK).json({
             data: questions, // Trả về questions để kiểm tra
             message: 'Imported quiz data successfully'
         })

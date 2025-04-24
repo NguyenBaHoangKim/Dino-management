@@ -492,5 +492,22 @@ export const getProjectsByType = async (req, res) => {
     }
 }
 
-//search project and pagination
+export const pushImage = async (req, res) => {
+    try {
+        if (req.file) {
+            const imageUrl = await uploadImage(req, res, 'default')
+            return res.status(httpStatus.OK).json({
+                data: imageUrl,
+                message: 'Push image successfully',
+            })
+        }
+        return res.status(httpStatus.BAD_REQUEST).json({
+            message: 'No image provided',
+        })
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: error.message || 'Failed to push image',
+        })
+    }
+}
 

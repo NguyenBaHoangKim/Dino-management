@@ -55,3 +55,7 @@ export const setTypeProject = async (req, res) => {
 export const getProjectsByType = async (req, res) => {
     await projectService.getProjectsByType(req, res)
 }
+
+export const pushImage = async (req, res) => {
+    await projectService.pushImage(req, res)
+}

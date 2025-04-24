@@ -30,8 +30,12 @@ router
     .route('/reset-password/:userId')
     .post(authorize([ROLE.ADMIN]), authController.resetPassword) //add authorize()
 
-// router //
-//     .route('/google')
-//     .post(oAuthLogin('google'), authController.oAuth)
+router //
+    .route('/google')
+    .post(oAuthLogin('google'))
+
+// router
+//     .route('/google/callback')
+
 
 export default router

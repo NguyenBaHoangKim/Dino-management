@@ -146,6 +146,7 @@ export const getForumsByUserId = async (req, res) => {
     }
 }
 
+//cai nay lay cho admin
 export const getListForums = async (req, res) => {
     try {
         let { page, perPage } = req.query
@@ -172,6 +173,7 @@ export const getListForums = async (req, res) => {
         return res.status(httpStatus.OK).json({
             data: forums,
             page: parseInt(page, 10),
+            total: totalForums,
             totalPages: perPage === -1 ? 1 : Math.ceil(totalForums / perPage),
             message: 'Lấy danh sách forums thành công',
         })

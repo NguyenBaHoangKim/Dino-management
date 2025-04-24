@@ -24,6 +24,10 @@ router
     .post(authorize(), projectController.setTypeProject)
 
 router
+    .route('/push-image')
+    .post(upload.single('image'), projectController.pushImage)
+
+router
     .route('/type/:type')
     .get(projectController.getProjectsByType)
 
