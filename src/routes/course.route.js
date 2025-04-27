@@ -43,6 +43,14 @@ router
     .post(authorize([ROLE.TEACHER, ROLE.ADMIN]), courseController.addStudentToCourse)
 
 router
+    .route('/add-many-student')
+    .post(courseController.addManyStudentToCourse)
+
+router
+    .route('/import-student')
+    .post(upload.single('file'), courseController.importStudentToCourse)
+
+router
     .route('/clone-course')
     .post(authorize([ROLE.TEACHER, ROLE.ADMIN]), upload.single('file'), courseController.cloneCourse)
 

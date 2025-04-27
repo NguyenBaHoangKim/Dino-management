@@ -9,6 +9,7 @@ import CourseMember from '../models/courseMember.model.js'
 import User from '#models/user'
 import Exercise from '../models/exercise.model.js'
 import Question from '../models/question.model.js'
+import xlsx from 'xlsx'
 
 export const createCourse = async (req, res) => {
     try {
@@ -134,6 +135,66 @@ export const addStudentToCourse = async (req, res) => {
         await courseMember.save()
 
         return res.status(httpStatus.OK).json({
+            message: 'Thêm học viên vào course thành công',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Thêm học viên vào course thất bại',
+        })
+    }
+}
+
+export const addManyStudentToCourse = async (req, res) => {
+    try {
+        const { courseId, students } = req.body
+
+        const courseMembers = students.map(student => ({
+            course_id: courseId,
+            user_id: student._id,
+        }))
+
+        await CourseMember.insertMany(courseMembers)
+
+        return res.status(httpStatus.CREATED).json({
+            data: courseMembers,
+            message: 'Thêm học viên vào course thành công',
+        })
+    } catch (e) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            message: e.message || 'Thêm học viên vào course thất bại',
+        })
+    }
+}
+
+export const importStudentToCourse = async (req, res) => {
+    try {
+        const { courseId } = req.body
+        const file = req.file
+        const workbook = xlsx.read(file.buffer, { type: 'buffer' })
+        const sheetName = workbook.SheetNames[0]
+        const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, defval: '', blankrows: true })
+
+        const studentIds = []
+        const errorStudent = []
+        for (let i = 4; i < sheetData.length; i++) {
+            const row = sheetData[i]
+            const email = row[2]
+            const user = await User.findOne({ email: email }).select('_id username email avatar')
+            if (!user) {
+                errorStudent.push({ username: row[1], email: email, message: 'không tìm thấy email' })
+                continue
+            }
+            const check = await CourseMember.findOne({course_id: courseId, user_id: user._id})
+            if (check) {
+                errorStudent.push({ username: row[1], email: email, message: 'Đã tồn tại trong lớp học' })
+                continue
+            }
+            studentIds.push(user)
+        }
+
+        return res.status(httpStatus.CREATED).json({
+            student: studentIds,
+            errorStudent: errorStudent,
             message: 'Thêm học viên vào course thành công',
         })
     } catch (e) {

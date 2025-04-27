@@ -36,6 +36,14 @@ export const addStudentToCourse = async (req, res) => {
     await courseService.addStudentToCourse(req, res)
 }
 
+export const addManyStudentToCourse = async (req, res) => {
+    await courseService.addManyStudentToCourse(req, res)
+}
+
+export const importStudentToCourse = async (req, res) => {
+    await courseService.importStudentToCourse(req, res)
+}
+
 export const removeStudentFromCourse = async (req, res) => {
     await courseService.removeStudentFromCourse(req, res)
 }
