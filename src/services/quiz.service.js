@@ -57,11 +57,11 @@ export const importQuizData = async (req, res) => {
 
         const groupedQuestions = {}
         let currentSTT = null
+        let cnt_crt_ans
 
         // Duyệt từng dòng, bắt đầu từ hàng 2 (bỏ qua hàng tiêu đề)
         for (let rowIndex = 1; rowIndex < sheetData.length; rowIndex++) {
             const row = sheetData[rowIndex]
-            let cnt_crt_ans = 0
             // Kiểm tra cột STT (cột 0)
             const stt = row[0]
 
