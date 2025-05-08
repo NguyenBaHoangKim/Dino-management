@@ -330,14 +330,14 @@ export const getListCoursePerPage = async (req, res) => {
             : {}
 
         if (parseInt(perPage, 10) === -1) {
-            courses = await Course.find()
+            courses = await Course.find().populate('teacher_id', 'username avatar _id').lean()
             totalCourses = courses.length
             totalPages = 1
             page = 1
         } else {
             const skip = (page - 1) * perPage
             const limit = parseInt(perPage, 10)
-            courses = await Course.find(searchQuery).skip(skip).limit(limit)
+            courses = await Course.find(searchQuery).populate('teacher_id', 'username avatar _id').lean().skip(skip).limit(limit)
             totalCourses = await Course.countDocuments(searchQuery)
             totalPages = Math.ceil(totalCourses / limit)
         }
