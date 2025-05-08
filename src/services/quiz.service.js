@@ -61,18 +61,19 @@ export const importQuizData = async (req, res) => {
         // Duyệt từng dòng, bắt đầu từ hàng 2 (bỏ qua hàng tiêu đề)
         for (let rowIndex = 1; rowIndex < sheetData.length; rowIndex++) {
             const row = sheetData[rowIndex]
-
+            let cnt_crt_ans = 0
             // Kiểm tra cột STT (cột 0)
             const stt = row[0]
 
             // Nếu có STT mới, khởi tạo câu hỏi mới
             if (stt) {
+                cnt_crt_ans = 0
                 currentSTT = stt
                 groupedQuestions[currentSTT] = {
                     question: row[1], // Cột 1: Câu hỏi
                     answers: [],
                     correct_answer: [],
-                    type_answer: row[4] === 'x' ? 'one_choice' : 'multi_choice' // Cột 4: Chọn 1 đáp án
+                    type_answer: 'one_choice'
                 }
 
                 // Thêm đáp án đầu tiên từ hàng này
@@ -80,6 +81,7 @@ export const importQuizData = async (req, res) => {
                     groupedQuestions[currentSTT].answers.push(row[2])
                     if (row[3] === 'x') { // Cột 3: Câu trả lời đúng
                         groupedQuestions[currentSTT].correct_answer.push(row[2])
+                        cnt_crt_ans++
                     }
                 }
             } else if (currentSTT) {
@@ -88,7 +90,11 @@ export const importQuizData = async (req, res) => {
                     groupedQuestions[currentSTT].answers.push(row[2])
                     if (row[3] === 'x') { // Cột 3: Câu trả lời đúng
                         groupedQuestions[currentSTT].correct_answer.push(row[2])
+                        cnt_crt_ans++
                     }
+                }
+                if (cnt_crt_ans > 1) {
+                    groupedQuestions[currentSTT].type_answer = 'multiple_choice'
                 }
             }
         }
@@ -102,7 +108,7 @@ export const importQuizData = async (req, res) => {
             answers: groupedQuestions[stt].answers,
             correct_answer: groupedQuestions[stt].correct_answer,
             image: '',
-            type_answer: groupedQuestions[stt].type_answer
+            type_answer: groupedQuestions[stt].type_answer,
         }))
 
         console.log('Processed questions:', questions)
@@ -112,12 +118,12 @@ export const importQuizData = async (req, res) => {
 
         return res.status(httpStatus.OK).json({
             data: questions, // Trả về questions để kiểm tra
-            message: 'Imported quiz data successfully'
+            message: 'Imported quiz data successfully',
         })
     } catch (e) {
         console.error('Error importing quiz data:', e)
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            message: e.message || 'Failed to import quiz data'
+            message: e.message || 'Failed to import quiz data',
         })
     }
 }
