@@ -248,7 +248,7 @@ export const resetPassword = async (req, res) => {
     try {
         const { userId } = req.params
         const rounds = env === 'test' ? 1 : 10
-        const newPassword = await bcrypt.hash('123456', rounds)
+        const newPassword = await bcrypt.hash('@12345678', rounds)
         const user = await User.findByIdAndUpdate(userId, {
             password: newPassword
         })
